@@ -178,7 +178,27 @@ jobs:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           if [ -n "$GOOGLE_SERVICES_JSON" ]; then
-            echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/google-services.json
+            echo "Attempting to decode google-services.json..."
+
+            # Try to detect if it's base64 or raw JSON
+            if echo "$GOOGLE_SERVICES_JSON" | head -c 1 | grep -q '{'; then
+              # It's raw JSON (starts with {)
+              echo "Detected raw JSON format"
+              echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
+            else
+              # It's base64 encoded - decode it
+              echo "Detected base64 format"
+              # Remove any whitespace/newlines and decode
+              echo "$GOOGLE_SERVICES_JSON" | tr -d '[:space:]' | base64 -d > app/google-services.json
+            fi
+
+            # Validate the JSON
+            if python3 -c "import json; json.load(open('app/google-services.json'))" 2>/dev/null; then
+              echo "✓ google-services.json is valid JSON"
+            else
+              echo "✗ Warning: google-services.json may not be valid JSON"
+              head -c 100 app/google-services.json
+            fi
           else
             echo "Warning: GOOGLE_SERVICES_JSON secret not set, using dummy"
             cat > app/google-services.json << 'EOF'
@@ -198,14 +218,28 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Decoding keystore..."
             mkdir -p keystores
-            echo "$KEYSTORE_BASE64" | base64 -d > keystores/bikeride-release.jks
+            # Remove any whitespace/newlines and decode
+            echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > keystores/bikeride-release.jks
+
+            # Verify keystore was created
+            if [ -f "keystores/bikeride-release.jks" ] && [ -s "keystores/bikeride-release.jks" ]; then
+              echo "✓ Keystore decoded successfully ($(stat -f%z keystores/bikeride-release.jks 2>/dev/null || stat -c%s keystores/bikeride-release.jks) bytes)"
+            else
+              echo "✗ Error: Keystore file is empty or missing"
+              exit 1
+            fi
+
             cat > keystore.properties << EOF
           storeFile=keystores/bikeride-release.jks
           storePassword=$KEYSTORE_PASSWORD
           keyAlias=$KEY_ALIAS
           keyPassword=$KEY_PASSWORD
           EOF
+            echo "✓ keystore.properties created"
+          else
+            echo "Warning: KEYSTORE_BASE64 secret not set, release APK will be unsigned"
           fi
 
       - name: Build release APK
