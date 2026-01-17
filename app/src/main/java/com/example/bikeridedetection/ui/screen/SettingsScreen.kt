@@ -127,9 +127,10 @@ private fun SettingsContent(
             },
             label = { Text(stringResource(R.string.settings_auto_reply_label)) },
             placeholder = { Text(stringResource(R.string.settings_auto_reply_placeholder)) },
-            supportingText = uiState.autoReplyValidationError?.let { error ->
-                { Text(text = error, color = MaterialTheme.colorScheme.error) }
-            },
+            supportingText =
+                uiState.autoReplyValidationError?.let { error ->
+                    { Text(text = error, color = MaterialTheme.colorScheme.error) }
+                },
             isError = uiState.autoReplyValidationError != null,
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
