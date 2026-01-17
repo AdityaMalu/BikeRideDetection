@@ -88,6 +88,9 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         const val EXTRA_IS_ENABLED = "extra_is_enabled"
         const val EXTRA_ANIMATE = "extra_animate"
 
+        // Animation timing constants
+        private const val TEXT_UPDATE_DELAY_MS = 100L
+
         // Coroutine scope for animations
         private val animationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -188,7 +191,7 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             isEnabled: Boolean,
         ) {
             // Brief delay before text change for visual effect
-            kotlinx.coroutines.delay(100)
+            kotlinx.coroutines.delay(TEXT_UPDATE_DELAY_MS)
 
             val views = RemoteViews(context.packageName, R.layout.widget_bike_mode)
 
@@ -230,15 +233,23 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         ) {
             val views = RemoteViews(context.packageName, R.layout.widget_bike_mode)
 
-            // Update background based on state - green when active
+            updateWidgetVisuals(context, views, isEnabled)
+            updateWidgetToggle(context, views, isEnabled)
+            setupWidgetClickListeners(context, views)
+
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+
+        private fun updateWidgetVisuals(
+            context: Context,
+            views: RemoteViews,
+            isEnabled: Boolean,
+        ) {
+            // Update background based on state
             views.setInt(
                 R.id.widget_container,
                 "setBackgroundResource",
-                if (isEnabled) {
-                    R.drawable.widget_background_active
-                } else {
-                    R.drawable.widget_background_inactive
-                },
+                if (isEnabled) R.drawable.widget_background_active else R.drawable.widget_background_inactive,
             )
 
             // Update bike icon tint
@@ -252,11 +263,7 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(
                 R.id.widget_status_text,
                 context.getString(
-                    if (isEnabled) {
-                        R.string.widget_status_active
-                    } else {
-                        R.string.widget_status_ready
-                    },
+                    if (isEnabled) R.string.widget_status_active else R.string.widget_status_ready,
                 ),
             )
 
@@ -264,81 +271,70 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(
                 R.id.widget_status_description,
                 context.getString(
-                    if (isEnabled) {
-                        R.string.widget_calls_blocked
-                    } else {
-                        R.string.widget_tap_to_enable
-                    },
+                    if (isEnabled) R.string.widget_calls_blocked else R.string.widget_tap_to_enable,
                 ),
             )
+        }
 
+        private fun updateWidgetToggle(
+            context: Context,
+            views: RemoteViews,
+            isEnabled: Boolean,
+        ) {
             // Update toggle switch track
             views.setInt(
                 R.id.widget_toggle_button,
                 "setBackgroundResource",
-                if (isEnabled) {
-                    R.drawable.widget_toggle_track_on
-                } else {
-                    R.drawable.widget_toggle_track_off
-                },
+                if (isEnabled) R.drawable.widget_toggle_track_on else R.drawable.widget_toggle_track_off,
             )
 
             // Update toggle switch thumb drawable
             views.setInt(
                 R.id.widget_toggle_thumb,
                 "setBackgroundResource",
-                if (isEnabled) {
-                    R.drawable.widget_toggle_thumb_on
-                } else {
-                    R.drawable.widget_toggle_thumb_off
-                },
+                if (isEnabled) R.drawable.widget_toggle_thumb_on else R.drawable.widget_toggle_thumb_off,
             )
 
-            // Update toggle thumb position using layout params
-            // For ON state: thumb moves to the right (end)
-            // For OFF state: thumb stays at the left (start)
+            // Update toggle thumb position
             val thumbMarginStart =
-                if (isEnabled) {
-                    context.resources.getDimensionPixelSize(R.dimen.widget_toggle_thumb_margin_on)
-                } else {
-                    context.resources.getDimensionPixelSize(R.dimen.widget_toggle_thumb_margin_off)
-                }
+                context.resources.getDimensionPixelSize(
+                    if (isEnabled) R.dimen.widget_toggle_thumb_margin_on else R.dimen.widget_toggle_thumb_margin_off,
+                )
             views.setViewLayoutMargin(
                 R.id.widget_toggle_thumb,
                 RemoteViews.MARGIN_START,
                 thumbMarginStart.toFloat(),
                 android.util.TypedValue.COMPLEX_UNIT_PX,
             )
+        }
 
+        private fun setupWidgetClickListeners(
+            context: Context,
+            views: RemoteViews,
+        ) {
             // Set click intent for toggle switch
-            val toggleIntent =
-                Intent(context, BikeModeWidgetProvider::class.java).apply {
-                    action = ACTION_TOGGLE_BIKE_MODE
-                }
             val togglePendingIntent =
                 PendingIntent.getBroadcast(
                     context,
                     0,
-                    toggleIntent,
+                    Intent(context, BikeModeWidgetProvider::class.java).apply {
+                        action = ACTION_TOGGLE_BIKE_MODE
+                    },
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             views.setOnClickPendingIntent(R.id.widget_toggle_button, togglePendingIntent)
 
             // Set click intent for widget container to open app
-            val openAppIntent =
-                Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                }
             val openAppPendingIntent =
                 PendingIntent.getActivity(
                     context,
                     1,
-                    openAppIntent,
+                    Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    },
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             views.setOnClickPendingIntent(R.id.widget_container, openAppPendingIntent)
-
-            appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
 }

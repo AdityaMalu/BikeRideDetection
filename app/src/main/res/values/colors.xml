@@ -62,4 +62,18 @@
     <color name="feature_calls_background">#E3F2FD</color>
     <color name="feature_sms_background">#FFF3E0</color>
     <color name="feature_notification_background">#F3E5F5</color>
+
+    <!-- Glassmorphism Colors - Light Mode -->
+    <!-- Semi-transparent backgrounds with alpha for blur effect -->
+    <color name="glass_hero_background">#E6FFFFFF</color> <!-- 90% white -->
+    <color name="glass_feature_calls_background">#D9E3F2FD</color> <!-- 85% light blue -->
+    <color name="glass_feature_sms_background">#D9FFF3E0</color> <!-- 85% light orange -->
+    <color name="glass_safety_background">#E6A5D6A7</color> <!-- 90% light green -->
+
+    <!-- Glassmorphism borders with subtle opacity -->
+    <color name="glass_border_light">#33FFFFFF</color> <!-- 20% white -->
+    <color name="glass_border_accent">#4D2E7D32</color> <!-- 30% primary green -->
+
+    <!-- Shadow colors for depth -->
+    <color name="glass_shadow_light">#1A000000</color> <!-- 10% black -->
 </resources>
