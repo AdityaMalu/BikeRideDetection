@@ -179,34 +179,83 @@ jobs:
         run: |
           if [ -n "$GOOGLE_SERVICES_JSON" ]; then
             echo "Attempting to decode google-services.json..."
+            echo "Secret length: ${#GOOGLE_SERVICES_JSON} characters"
+            echo "First 20 chars: $(echo "$GOOGLE_SERVICES_JSON" | head -c 20)..."
 
-            # Try to detect if it's base64 or raw JSON
-            if echo "$GOOGLE_SERVICES_JSON" | head -c 1 | grep -q '{'; then
-              # It's raw JSON (starts with {)
-              echo "Detected raw JSON format"
+            DECODED=false
+
+            # Method 1: Check if it's already raw JSON
+            if echo "$GOOGLE_SERVICES_JSON" | grep -q '^[[:space:]]*{'; then
+              echo "Method 1: Detected raw JSON format"
               echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
-            else
-              # It's base64 encoded - decode it
-              echo "Detected base64 format"
-              # Remove any whitespace/newlines and decode
-              echo "$GOOGLE_SERVICES_JSON" | tr -d '[:space:]' | base64 -d > app/google-services.json
+              DECODED=true
             fi
 
-            # Validate the JSON
-            if python3 -c "import json; json.load(open('app/google-services.json'))" 2>/dev/null; then
-              echo "✓ google-services.json is valid JSON"
-            else
-              echo "✗ Warning: google-services.json may not be valid JSON"
-              head -c 100 app/google-services.json
+            # Method 2: Try base64 decode with -d flag (Linux)
+            if [ "$DECODED" = false ]; then
+              echo "Method 2: Trying base64 -d..."
+              if echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/google-services.json 2>/dev/null; then
+                if [ -s app/google-services.json ] && head -c 1 app/google-services.json | grep -q '{'; then
+                  echo "Method 2: Success"
+                  DECODED=true
+                fi
+              fi
+            fi
+
+            # Method 3: Try with whitespace stripped
+            if [ "$DECODED" = false ]; then
+              echo "Method 3: Trying base64 -d with whitespace stripped..."
+              if echo "$GOOGLE_SERVICES_JSON" | tr -d '[:space:]' | base64 -d > app/google-services.json 2>/dev/null; then
+                if [ -s app/google-services.json ] && head -c 1 app/google-services.json | grep -q '{'; then
+                  echo "Method 3: Success"
+                  DECODED=true
+                fi
+              fi
+            fi
+
+            # Method 4: Try Python base64 decode (more lenient)
+            if [ "$DECODED" = false ]; then
+              echo "Method 4: Trying Python base64 decode..."
+              if python3 -c "
+          import base64
+          import sys
+          data = '''$GOOGLE_SERVICES_JSON'''.strip()
+          # Add padding if needed
+          padding = 4 - len(data) % 4
+          if padding != 4:
+              data += '=' * padding
+          decoded = base64.b64decode(data)
+          sys.stdout.buffer.write(decoded)
+          " > app/google-services.json 2>/dev/null; then
+                if [ -s app/google-services.json ] && head -c 1 app/google-services.json | grep -q '{'; then
+                  echo "Method 4: Success"
+                  DECODED=true
+                fi
+              fi
+            fi
+
+            # Validate the result
+            if [ "$DECODED" = true ]; then
+              if python3 -c "import json; json.load(open('app/google-services.json'))" 2>/dev/null; then
+                echo "✓ google-services.json is valid JSON"
+              else
+                echo "✗ Decoded but not valid JSON, showing first 200 chars:"
+                head -c 200 app/google-services.json
+                DECODED=false
+              fi
+            fi
+
+            if [ "$DECODED" = false ]; then
+              echo "✗ All decode methods failed. Using dummy google-services.json"
+              echo "Please re-encode your google-services.json with: base64 -w 0 app/google-services.json"
+              cat > app/google-services.json << 'EOFINNER'
+          {"project_info":{"project_number":"000000000000","project_id":"dummy-project","storage_bucket":"dummy-project.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000","android_client_info":{"package_name":"com.example.bikeridedetection"}},"oauth_client":[],"api_key":[{"current_key":"dummy_key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1"}
+          EOFINNER
             fi
           else
             echo "Warning: GOOGLE_SERVICES_JSON secret not set, using dummy"
             cat > app/google-services.json << 'EOF'
-          {
-            "project_info": {"project_number": "000000000000", "project_id": "dummy-project", "storage_bucket": "dummy-project.appspot.com"},
-            "client": [{"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.example.bikeridedetection"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
-            "configuration_version": "1"
-          }
+          {"project_info":{"project_number":"000000000000","project_id":"dummy-project","storage_bucket":"dummy-project.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000","android_client_info":{"package_name":"com.example.bikeridedetection"}},"oauth_client":[],"api_key":[{"current_key":"dummy_key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1"}
           EOF
           fi
 
@@ -219,25 +268,67 @@ jobs:
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "Decoding keystore..."
+            echo "Secret length: ${#KEYSTORE_BASE64} characters"
             mkdir -p keystores
-            # Remove any whitespace/newlines and decode
-            echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > keystores/bikeride-release.jks
 
-            # Verify keystore was created
-            if [ -f "keystores/bikeride-release.jks" ] && [ -s "keystores/bikeride-release.jks" ]; then
-              echo "✓ Keystore decoded successfully ($(stat -f%z keystores/bikeride-release.jks 2>/dev/null || stat -c%s keystores/bikeride-release.jks) bytes)"
-            else
-              echo "✗ Error: Keystore file is empty or missing"
-              exit 1
+            DECODED=false
+
+            # Method 1: Try standard base64 decode
+            if echo "$KEYSTORE_BASE64" | base64 -d > keystores/bikeride-release.jks 2>/dev/null; then
+              if [ -s keystores/bikeride-release.jks ]; then
+                echo "Method 1: Success"
+                DECODED=true
+              fi
             fi
 
-            cat > keystore.properties << EOF
+            # Method 2: Try with whitespace stripped
+            if [ "$DECODED" = false ]; then
+              echo "Method 2: Trying with whitespace stripped..."
+              if echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > keystores/bikeride-release.jks 2>/dev/null; then
+                if [ -s keystores/bikeride-release.jks ]; then
+                  echo "Method 2: Success"
+                  DECODED=true
+                fi
+              fi
+            fi
+
+            # Method 3: Try Python base64 decode
+            if [ "$DECODED" = false ]; then
+              echo "Method 3: Trying Python base64 decode..."
+              if python3 -c "
+          import base64
+          import sys
+          data = '''$KEYSTORE_BASE64'''.strip().replace(' ', '').replace('\n', '')
+          padding = 4 - len(data) % 4
+          if padding != 4:
+              data += '=' * padding
+          decoded = base64.b64decode(data)
+          sys.stdout.buffer.write(decoded)
+          " > keystores/bikeride-release.jks 2>/dev/null; then
+                if [ -s keystores/bikeride-release.jks ]; then
+                  echo "Method 3: Success"
+                  DECODED=true
+                fi
+              fi
+            fi
+
+            # Verify keystore was created
+            if [ "$DECODED" = true ] && [ -f "keystores/bikeride-release.jks" ] && [ -s "keystores/bikeride-release.jks" ]; then
+              FILESIZE=$(stat -c%s keystores/bikeride-release.jks 2>/dev/null || stat -f%z keystores/bikeride-release.jks)
+              echo "✓ Keystore decoded successfully ($FILESIZE bytes)"
+
+              cat > keystore.properties << EOF
           storeFile=keystores/bikeride-release.jks
           storePassword=$KEYSTORE_PASSWORD
           keyAlias=$KEY_ALIAS
           keyPassword=$KEY_PASSWORD
           EOF
-            echo "✓ keystore.properties created"
+              echo "✓ keystore.properties created"
+            else
+              echo "✗ Error: Failed to decode keystore"
+              echo "Please re-encode with: base64 -w 0 keystores/bikeride-release.jks"
+              exit 1
+            fi
           else
             echo "Warning: KEYSTORE_BASE64 secret not set, release APK will be unsigned"
           fi
