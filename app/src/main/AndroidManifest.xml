@@ -15,12 +15,20 @@
 
     <!-- Needed on Android 13+ to actually show notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+
 
 
 
 
 
     <application
+        android:name=".BikeRideDetectionApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -29,16 +37,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BikeRideDetection">
+
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".service.BikeTransitionReceiver"
+            android:exported="false" />
+
+        <service
+            android:name=".service.BikeDetectionService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
         <service
             android:name=".service.BikeCallScreeningService"
             android:permission="android.permission.BIND_SCREENING_SERVICE"
@@ -47,6 +65,7 @@
                 <action android:name="android.telecom.CallScreeningService"/>
             </intent-filter>
         </service>
+
         <service
             android:name=".service.NotificationService"
             android:exported="false"
