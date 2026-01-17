@@ -43,6 +43,19 @@
     <string name="error_failed_to_update">Failed to update bike mode</string>
     <string name="error_failed_to_toggle">Failed to toggle bike mode</string>
 
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_auto_reply">Auto Reply Message</string>
+    <string name="settings_auto_reply_label">Message</string>
+    <string name="settings_auto_reply_placeholder">Enter your auto-reply message</string>
+    <string name="settings_section_features">Features</string>
+    <string name="settings_auto_detect_title">Auto-detect Cycling</string>
+    <string name="settings_auto_detect_subtitle">Automatically enable bike mode when cycling is detected</string>
+    <string name="settings_call_blocking_title">Block Incoming Calls</string>
+    <string name="settings_call_blocking_subtitle">Reject calls while bike mode is active</string>
+    <string name="settings_sms_reply_title">Send Auto-reply SMS</string>
+    <string name="settings_sms_reply_subtitle">Send automatic reply to callers</string>
+
     <!-- Accessibility Content Descriptions -->
     <string name="cd_bike_icon">Bike mode indicator icon</string>
     <string name="cd_bike_mode_switch">Toggle bike mode on or off</string>
@@ -51,6 +64,8 @@
     <string name="cd_safety_shield">Safety protection indicator</string>
     <string name="cd_status_active">Bike mode is currently active</string>
     <string name="cd_status_inactive">Bike mode is currently inactive</string>
+    <string name="cd_navigate_back">Navigate back</string>
+    <string name="cd_settings">Open settings</string>
 
     <!-- Announcements for Screen Readers -->
     <string name="announce_bike_mode_activated">Bike mode activated. Calls will be blocked.</string>
