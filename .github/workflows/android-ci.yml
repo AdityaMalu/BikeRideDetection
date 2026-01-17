@@ -417,16 +417,111 @@ jobs:
           name: app-release
           path: app/build/outputs/apk/release/
 
+      - name: Debug - List downloaded files
+        run: |
+          echo "=== Files in release directory ==="
+          ls -la app/build/outputs/apk/release/ || echo "Directory not found"
+          echo ""
+          echo "=== All APK files ==="
+          find app/build/outputs -name "*.apk" -type f 2>/dev/null || echo "No APK files found"
+
+      - name: Debug - Validate Firebase configuration
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "=== Firebase Configuration Check ==="
+
+          # Check FIREBASE_APP_ID
+          if [ -z "$FIREBASE_APP_ID" ]; then
+            echo "❌ FIREBASE_APP_ID secret is not set!"
+          else
+            echo "✓ FIREBASE_APP_ID is set (length: ${#FIREBASE_APP_ID} chars)"
+            # Show format without revealing full ID
+            echo "  Format check: $(echo "$FIREBASE_APP_ID" | grep -E '^1:[0-9]+:android:[a-f0-9]+$' && echo 'Valid format' || echo 'Invalid format - expected 1:NUMBER:android:HEX')"
+          fi
+
+          # Check FIREBASE_SERVICE_ACCOUNT_JSON
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "❌ FIREBASE_SERVICE_ACCOUNT_JSON secret is not set!"
+          else
+            echo "✓ FIREBASE_SERVICE_ACCOUNT_JSON is set (length: ${#FIREBASE_SERVICE_ACCOUNT_JSON} chars)"
+            # Validate JSON structure
+            if echo "$FIREBASE_SERVICE_ACCOUNT_JSON" | python3 -c "import sys,json; json.load(sys.stdin)" 2>/dev/null; then
+              echo "✓ Valid JSON format"
+              # Check for required fields
+              echo "$FIREBASE_SERVICE_ACCOUNT_JSON" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          required = ['type', 'project_id', 'private_key', 'client_email']
+          for field in required:
+              if field in data:
+                  if field == 'project_id':
+                      print(f'  ✓ {field}: {data[field]}')
+                  elif field == 'client_email':
+                      print(f'  ✓ {field}: {data[field]}')
+                  else:
+                      print(f'  ✓ {field}: [present]')
+              else:
+                  print(f'  ❌ {field}: MISSING')
+          "
+            else
+              echo "❌ Invalid JSON format"
+            fi
+          fi
+
+      - name: Find and set APK path
+        id: find-apk
+        run: |
+          echo "=== Finding APK file ==="
+
+          # Look for any release APK
+          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" -type f | head -1)
+
+          if [ -z "$APK_FILE" ]; then
+            echo "❌ No APK file found in release directory!"
+            exit 1
+          fi
+
+          echo "✓ Found APK: $APK_FILE"
+          echo "  Size: $(ls -lh "$APK_FILE" | awk '{print $5}')"
+          echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
+
+      - name: Check if tester group exists
+        id: check-group
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: |
+          echo "=== Tester Group Configuration ==="
+          echo "Note: If 'internal-testers' group doesn't exist in Firebase App Distribution,"
+          echo "      create it at: Firebase Console → App Distribution → Testers & Groups"
+          echo ""
+          echo "Configured group: internal-testers"
+          echo "If distribution fails with 404, the group may not exist."
+          echo ""
+          # Check if FIREBASE_TESTER_GROUPS secret exists as override
+          if [ -n "${{ secrets.FIREBASE_TESTER_GROUPS }}" ]; then
+            echo "groups=${{ secrets.FIREBASE_TESTER_GROUPS }}" >> $GITHUB_OUTPUT
+            echo "Using custom tester groups from secret: ${{ secrets.FIREBASE_TESTER_GROUPS }}"
+          else
+            echo "groups=internal-testers" >> $GITHUB_OUTPUT
+            echo "Using default tester group: internal-testers"
+          fi
+
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          groups: internal-testers
-          file: app/build/outputs/apk/release/app-release-unsigned.apk
+          groups: ${{ steps.check-group.outputs.groups }}
+          file: ${{ steps.find-apk.outputs.apk_path }}
           releaseNotes: |
             Build: ${{ github.run_number }}
             Commit: ${{ github.sha }}
             Branch: ${{ github.ref_name }}
+
+            Changes in this build:
+            - See commit history for details
 
 
