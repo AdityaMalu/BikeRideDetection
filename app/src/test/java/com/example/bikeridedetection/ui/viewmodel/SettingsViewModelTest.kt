@@ -55,6 +55,7 @@ class SettingsViewModelTest {
 
             val state = viewModel.uiState.value
             assertEquals(BikeMode.DEFAULT_AUTO_REPLY, state.autoReplyMessage)
+            assertNull(state.autoReplyValidationError)
             assertTrue(state.isAutoDetectEnabled)
             assertTrue(state.isCallBlockingEnabled)
             assertTrue(state.isSmsAutoReplyEnabled)
@@ -64,7 +65,7 @@ class SettingsViewModelTest {
         }
 
     @Test
-    fun `updateAutoReplyMessage should update state`() =
+    fun `updateAutoReplyMessage should update state and clear validation error`() =
         runTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -73,13 +74,14 @@ class SettingsViewModelTest {
             viewModel.updateAutoReplyMessage(newMessage)
 
             assertEquals(newMessage, viewModel.uiState.value.autoReplyMessage)
+            assertNull(viewModel.uiState.value.autoReplyValidationError)
         }
 
     @Test
-    fun `saveSettings should call use case and set success`() =
+    fun `saveSettings should call use case and set success for valid message`() =
         runTest {
             viewModel = createViewModel()
-            coEvery { updateAutoReplyUseCase(any()) } returns Unit
+            coEvery { updateAutoReplyUseCase(any()) } returns true
             testDispatcher.scheduler.advanceUntilIdle()
 
             viewModel.saveSettings()
@@ -88,6 +90,23 @@ class SettingsViewModelTest {
             coVerify { updateAutoReplyUseCase(any()) }
             assertTrue(viewModel.uiState.value.saveSuccess)
             assertFalse(viewModel.uiState.value.isSaving)
+            assertNull(viewModel.uiState.value.autoReplyValidationError)
+        }
+
+    @Test
+    fun `saveSettings should show validation warning when message is empty`() =
+        runTest {
+            viewModel = createViewModel()
+            coEvery { updateAutoReplyUseCase(any()) } returns false
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModel.updateAutoReplyMessage("")
+            viewModel.saveSettings()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.saveSuccess)
+            assertEquals("Empty message replaced with default", viewModel.uiState.value.autoReplyValidationError)
+            assertEquals(BikeMode.DEFAULT_AUTO_REPLY, viewModel.uiState.value.autoReplyMessage)
         }
 
     @Test
@@ -155,7 +174,7 @@ class SettingsViewModelTest {
     fun `clearSaveSuccess should clear success flag`() =
         runTest {
             viewModel = createViewModel()
-            coEvery { updateAutoReplyUseCase(any()) } returns Unit
+            coEvery { updateAutoReplyUseCase(any()) } returns true
             testDispatcher.scheduler.advanceUntilIdle()
 
             viewModel.saveSettings()
@@ -163,5 +182,20 @@ class SettingsViewModelTest {
 
             viewModel.clearSaveSuccess()
             assertFalse(viewModel.uiState.value.saveSuccess)
+        }
+
+    @Test
+    fun `clearAutoReplyValidationError should clear validation error`() =
+        runTest {
+            viewModel = createViewModel()
+            coEvery { updateAutoReplyUseCase(any()) } returns false
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModel.updateAutoReplyMessage("")
+            viewModel.saveSettings()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModel.clearAutoReplyValidationError()
+            assertNull(viewModel.uiState.value.autoReplyValidationError)
         }
 }

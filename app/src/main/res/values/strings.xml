@@ -48,6 +48,7 @@
     <string name="settings_section_auto_reply">Auto Reply Message</string>
     <string name="settings_auto_reply_label">Message</string>
     <string name="settings_auto_reply_placeholder">Enter your auto-reply message</string>
+    <string name="settings_auto_reply_empty_warning">Empty message replaced with default</string>
     <string name="settings_section_features">Features</string>
     <string name="settings_auto_detect_title">Auto-detect Cycling</string>
     <string name="settings_auto_detect_subtitle">Automatically enable bike mode when cycling is detected</string>

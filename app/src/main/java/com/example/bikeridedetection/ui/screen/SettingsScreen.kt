@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,7 +35,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bikeridedetection.R
 import com.example.bikeridedetection.ui.components.SettingsToggleItem
 import com.example.bikeridedetection.ui.viewmodel.SettingsUiState
@@ -46,7 +46,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.saveSuccess) {
@@ -127,6 +127,10 @@ private fun SettingsContent(
             },
             label = { Text(stringResource(R.string.settings_auto_reply_label)) },
             placeholder = { Text(stringResource(R.string.settings_auto_reply_placeholder)) },
+            supportingText = uiState.autoReplyValidationError?.let { error ->
+                { Text(text = error, color = MaterialTheme.colorScheme.error) }
+            },
+            isError = uiState.autoReplyValidationError != null,
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
             maxLines = 4,

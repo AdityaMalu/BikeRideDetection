@@ -73,4 +73,21 @@ class SendAutoReplyUseCaseTest {
 
             assertEquals(SmsResult.InvalidNumber, result)
         }
+
+    @Test
+    fun `should send SMS with custom auto reply message`() =
+        runTest {
+            val phoneNumber = "+1234567890"
+            val customMessage = "Currently cycling, will call back soon!"
+            val bikeMode = BikeMode(isEnabled = true, autoReplyMessage = customMessage)
+
+            coEvery { bikeModeRepository.getBikeMode() } returns bikeMode
+            coEvery { smsRepository.sendSms(phoneNumber, customMessage) } returns
+                SmsResult.Sent(phoneNumber)
+
+            val result = useCase(phoneNumber)
+
+            assertEquals(SmsResult.Sent(phoneNumber), result)
+            coVerify { smsRepository.sendSms(phoneNumber, customMessage) }
+        }
 }

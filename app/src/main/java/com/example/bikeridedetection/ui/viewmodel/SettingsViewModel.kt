@@ -22,6 +22,7 @@ import javax.inject.Inject
  */
 data class SettingsUiState(
     val autoReplyMessage: String = BikeMode.DEFAULT_AUTO_REPLY,
+    val autoReplyValidationError: String? = null,
     val isAutoDetectEnabled: Boolean = true,
     val isCallBlockingEnabled: Boolean = true,
     val isSmsAutoReplyEnabled: Boolean = true,
@@ -63,22 +64,50 @@ class SettingsViewModel
         }
 
         /**
-         * Updates the auto-reply message.
+         * Updates the auto-reply message and clears any validation error.
          */
         fun updateAutoReplyMessage(message: String) {
-            _uiState.update { it.copy(autoReplyMessage = message) }
+            _uiState.update {
+                it.copy(
+                    autoReplyMessage = message,
+                    autoReplyValidationError = null,
+                )
+            }
         }
 
         /**
          * Saves the current settings.
+         * If the message is empty or whitespace, shows a validation warning
+         * and saves the default message instead.
          */
         fun saveSettings() {
             viewModelScope.launch {
-                _uiState.update { it.copy(isSaving = true, saveSuccess = false) }
+                _uiState.update {
+                    it.copy(
+                        isSaving = true,
+                        saveSuccess = false,
+                        autoReplyValidationError = null,
+                    )
+                }
                 try {
-                    updateAutoReplyUseCase(_uiState.value.autoReplyMessage)
-                    _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
-                    Timber.d("Settings saved successfully")
+                    val currentMessage = _uiState.value.autoReplyMessage
+                    val isValid = updateAutoReplyUseCase(currentMessage)
+
+                    if (!isValid) {
+                        // Message was empty/whitespace, default was used
+                        _uiState.update {
+                            it.copy(
+                                isSaving = false,
+                                saveSuccess = true,
+                                autoReplyValidationError = "Empty message replaced with default",
+                                autoReplyMessage = BikeMode.DEFAULT_AUTO_REPLY,
+                            )
+                        }
+                        Timber.d("Settings saved with default message (empty input)")
+                    } else {
+                        _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
+                        Timber.d("Settings saved successfully")
+                    }
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to save settings")
                     _uiState.update {
@@ -89,6 +118,13 @@ class SettingsViewModel
                     }
                 }
             }
+        }
+
+        /**
+         * Clears the validation error for auto-reply message.
+         */
+        fun clearAutoReplyValidationError() {
+            _uiState.update { it.copy(autoReplyValidationError = null) }
         }
 
         /**
