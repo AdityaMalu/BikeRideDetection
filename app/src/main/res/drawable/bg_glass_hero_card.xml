@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glassmorphism background for hero card -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Soft shadow layer for depth -->
+    <item
+        android:left="0dp"
+        android:top="2dp"
+        android:right="0dp"
+        android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/glass_shadow_light" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    
+    <!-- Main glassmorphism card -->
+    <item
+        android:left="0dp"
+        android:top="0dp"
+        android:right="0dp"
+        android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <!-- Semi-transparent background -->
+            <solid android:color="@color/glass_hero_background" />
+            
+            <!-- Subtle border with light opacity -->
+            <stroke
+                android:width="1dp"
+                android:color="@color/glass_border_light" />
+            
+            <!-- Smooth corner radius -->
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    
+</layer-list>
+
