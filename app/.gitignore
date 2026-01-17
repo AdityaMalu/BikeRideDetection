@@ -1,1 +1,9 @@
 /build
+
+# Firebase configuration (contains API keys)
+google-services.json
+
+# Release keystore
+*.jks
+*.keystore
+release-keystore.jks
