@@ -1,7 +1,12 @@
 package com.example.bikeridedetection
 
 import android.app.Application
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
 import android.util.Log
+import com.example.bikeridedetection.widget.BikeModeWidgetProvider
+import com.example.bikeridedetection.widget.BikeModeWidgetService
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import dagger.hilt.android.HiltAndroidApp
@@ -17,6 +22,23 @@ class BikeRideDetectionApp : Application() {
         super.onCreate()
         initializeTimber()
         initializeFirebase()
+        initializeWidgetService()
+    }
+
+    private fun initializeWidgetService() {
+        // Start widget service if there are active widgets
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val componentName = ComponentName(this, BikeModeWidgetProvider::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+
+        if (appWidgetIds.isNotEmpty()) {
+            Timber.d("Found ${appWidgetIds.size} active widgets, starting widget service")
+            val serviceIntent =
+                Intent(this, BikeModeWidgetService::class.java).apply {
+                    action = BikeModeWidgetService.ACTION_START_OBSERVING
+                }
+            startService(serviceIntent)
+        }
     }
 
     private fun initializeTimber() {

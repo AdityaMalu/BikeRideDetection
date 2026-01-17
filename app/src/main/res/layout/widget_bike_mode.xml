@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background_inactive"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp">
+
+    <!-- Bike Icon - Left side -->
+    <ImageView
+        android:id="@+id/widget_bike_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_bike_icon"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_bike"
+        tools:tint="@color/status_inactive" />
+
+    <!-- Status Text Container - Center -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/widget_status_ready"
+            android:textColor="@color/on_surface"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_status_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/widget_tap_to_enable"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+    <!-- Toggle Switch - Right side -->
+    <FrameLayout
+        android:id="@+id/widget_toggle_button"
+        android:layout_width="52dp"
+        android:layout_height="28dp"
+        android:background="@drawable/widget_toggle_track_off"
+        android:clickable="true"
+        android:contentDescription="@string/cd_widget_toggle"
+        android:focusable="true">
+
+        <!-- Toggle Thumb - Using ImageView since View is not supported in RemoteViews -->
+        <ImageView
+            android:id="@+id/widget_toggle_thumb"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="2dp"
+            android:background="@drawable/widget_toggle_thumb_off"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no" />
+
+    </FrameLayout>
+
+</LinearLayout>
+

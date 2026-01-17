@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget Toggle Switch Dimensions -->
+    <dimen name="widget_toggle_thumb_margin_off">2dp</dimen>
+    <dimen name="widget_toggle_thumb_margin_on">26dp</dimen>
+</resources>
+

@@ -68,6 +68,12 @@
             android:exported="false"
             android:theme="@style/Theme.BikeRideDetection" />
 
+        <!-- Permission Flow Activity -->
+        <activity
+            android:name=".ui.activity.PermissionFlowActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BikeRideDetection" />
+
         <receiver
             android:name=".service.BikeTransitionReceiver"
             android:exported="false" />
@@ -91,6 +97,26 @@
             android:exported="false"
             android:enabled="true"
             android:foregroundServiceType="dataSync" />
+
+        <!-- Bike Mode Widget Provider -->
+        <receiver
+            android:name=".widget.BikeModeWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.bikeridedetection.TOGGLE_BIKE_MODE" />
+                <action android:name="com.example.bikeridedetection.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_bike_mode_info" />
+        </receiver>
+
+        <!-- Bike Mode Widget Service -->
+        <service
+            android:name=".widget.BikeModeWidgetService"
+            android:exported="false" />
     </application>
 
     <queries>
