@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">BikeRideDetection</string>
+
+    <!-- Main Activity -->
+    <string name="title_bike_mode">Bike Mode</string>
+    <string name="switch_enable_bike_mode">Enable Bike Mode</string>
+    <string name="status_on">Status: ON</string>
+    <string name="status_off">Status: OFF</string>
+
+    <!-- Notifications -->
+    <string name="notification_detection_title">Bike Detection Running</string>
+    <string name="notification_detection_text">Detecting if you are on a bike…</string>
+    <string name="notification_active_title">Bike Mode Active</string>
+    <string name="notification_active_text">Tap to turn off Bike Mode</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_detection_name">Bike Detection</string>
+    <string name="channel_active_name">Bike Mode</string>
+    <string name="channel_active_description">Shows when Bike Mode is active</string>
+
+    <!-- Auto Reply -->
+    <string name="default_auto_reply">I\'m riding my bike right now.</string>
+
+    <!-- Permissions -->
+    <string name="permission_location_required">Location permission is required for bike detection</string>
+    <string name="permission_notification_required">Notification permission is required to show bike mode status</string>
+
+    <!-- Errors -->
+    <string name="error_failed_to_load">Failed to load bike mode settings</string>
+    <string name="error_failed_to_update">Failed to update bike mode</string>
+    <string name="error_failed_to_toggle">Failed to toggle bike mode</string>
 </resources>

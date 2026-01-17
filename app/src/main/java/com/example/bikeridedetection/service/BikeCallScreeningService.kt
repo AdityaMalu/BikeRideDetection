@@ -1,61 +1,97 @@
-package com.example.bikeridedetection.service;
+package com.example.bikeridedetection.service
 
+import android.telecom.Call
+import android.telecom.CallScreeningService
+import com.example.bikeridedetection.domain.usecase.GetBikeModeUseCase
+import com.example.bikeridedetection.domain.usecase.SendAutoReplyUseCase
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+/**
+ * Call screening service that rejects calls when bike mode is enabled.
+ * Sends an auto-reply SMS to the caller.
+ */
+@AndroidEntryPoint
+class BikeCallScreeningService : CallScreeningService() {
 
-import android.content.Context;
-import android.net.Uri;
-import android.telecom.Call;
-import android.telecom.CallScreeningService;
-import android.util.Log;
+    @Inject
+    lateinit var getBikeModeUseCase: GetBikeModeUseCase
 
-import com.example.bikeridedetection.data.PreferencesRepository;
+    @Inject
+    lateinit var sendAutoReplyUseCase: SendAutoReplyUseCase
 
-public class BikeCallScreeningService extends CallScreeningService {
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    private static final String TAG = "BikeCallScreening";
-    private Context context;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        context = getApplicationContext();
-        Log.d(TAG, "🚀 BikeCallScreeningService created");
+    override fun onCreate() {
+        super.onCreate()
+        Timber.d("BikeCallScreeningService created")
     }
 
-    @Override
-    public void onScreenCall(Call.Details callDetails) {
-        PreferencesRepository repo = new PreferencesRepository(context);
-        boolean isBikeModeOn = repo.isBikeModeEnabled();
+    override fun onScreenCall(callDetails: Call.Details) {
+        serviceScope.launch {
+            val bikeMode = getBikeModeUseCase()
+            val phoneNumber = extractPhoneNumber(callDetails.handle?.toString())
 
-        String number = getPhoneNumber(String.valueOf(callDetails.getHandle()));
+            Timber.d("Incoming call: $phoneNumber | BikeMode=${bikeMode.isEnabled}")
 
-        Log.d(TAG, "Incoming call: " + number + " | BikeMode=" + isBikeModeOn);
-
-        if (isBikeModeOn) {
-            // Reject call
-            CallResponse response = new CallResponse.Builder()
-                    .setDisallowCall(true)
-                    .setRejectCall(true)
-                    .setSkipNotification(true)
-                    .build();
-            respondToCall(callDetails, response);
-            Log.d(TAG, "❌ Call rejected");
-
-            // Send SMS
-            SmsService smsService = new SmsService(context);
-            smsService.sendAutoReply(number);
-
-        } else {
-            Log.d(TAG, "✅ Call allowed");
+            if (bikeMode.isEnabled) {
+                rejectCall(callDetails)
+                phoneNumber?.let { sendAutoReply(it) }
+            } else {
+                allowCall(callDetails)
+            }
         }
     }
 
-    private static String getPhoneNumber(String input) {
-        if (input == null || !input.startsWith("tel:")) {
-            return null;
+    private fun rejectCall(callDetails: Call.Details) {
+        val response = CallResponse.Builder()
+            .setDisallowCall(true)
+            .setRejectCall(true)
+            .setSkipNotification(true)
+            .build()
+        respondToCall(callDetails, response)
+        Timber.d("Call rejected")
+    }
+
+    private fun allowCall(callDetails: Call.Details) {
+        val response = CallResponse.Builder()
+            .setDisallowCall(false)
+            .setRejectCall(false)
+            .build()
+        respondToCall(callDetails, response)
+        Timber.d("Call allowed")
+    }
+
+    private suspend fun sendAutoReply(phoneNumber: String) {
+        val result = sendAutoReplyUseCase(phoneNumber)
+        Timber.d("Auto-reply result: $result")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+        Timber.d("BikeCallScreeningService destroyed")
+    }
+
+    companion object {
+        /**
+         * Extracts the phone number from a tel: URI.
+         *
+         * @param input The tel: URI string
+         * @return The extracted phone number, or null if invalid
+         */
+        fun extractPhoneNumber(input: String?): String? {
+            if (input == null || !input.startsWith("tel:")) {
+                return null
+            }
+            return input.substring(4).replace("%2B", "+")
         }
-        String number = input.substring(4);
-        return number.replace("%2B", "+");
     }
 }
+
