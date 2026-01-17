@@ -20,13 +20,15 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class BikeTransitionReceiver : BroadcastReceiver() {
-
     @Inject
     lateinit var bikeModeRepository: BikeModeRepository
 
     private val receiverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (!ActivityTransitionResult.hasResult(intent)) {
             return
         }
@@ -39,7 +41,7 @@ class BikeTransitionReceiver : BroadcastReceiver() {
                 result.transitionEvents.forEach { event ->
                     Timber.d(
                         "Detected transition: type=${event.activityType}, " +
-                            "transition=${event.transitionType}"
+                            "transition=${event.transitionType}",
                     )
 
                     val bikeModeOn = event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
@@ -48,10 +50,11 @@ class BikeTransitionReceiver : BroadcastReceiver() {
                     Timber.d("Bike mode toggled: $bikeModeOn")
 
                     // Broadcast to other components
-                    val broadcast = Intent(ACTION_BIKE_MODE_CHANGED).apply {
-                        putExtra(KEY_BIKE_MODE, bikeModeOn)
-                        setPackage(context.packageName)
-                    }
+                    val broadcast =
+                        Intent(ACTION_BIKE_MODE_CHANGED).apply {
+                            putExtra(KEY_BIKE_MODE, bikeModeOn)
+                            setPackage(context.packageName)
+                        }
                     context.sendBroadcast(broadcast)
                 }
             } finally {
@@ -65,4 +68,3 @@ class BikeTransitionReceiver : BroadcastReceiver() {
         const val KEY_BIKE_MODE = "bike_mode"
     }
 }
-

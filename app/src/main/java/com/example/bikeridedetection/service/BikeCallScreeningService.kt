@@ -19,7 +19,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class BikeCallScreeningService : CallScreeningService() {
-
     @Inject
     lateinit var getBikeModeUseCase: GetBikeModeUseCase
 
@@ -50,20 +49,24 @@ class BikeCallScreeningService : CallScreeningService() {
     }
 
     private fun rejectCall(callDetails: Call.Details) {
-        val response = CallResponse.Builder()
-            .setDisallowCall(true)
-            .setRejectCall(true)
-            .setSkipNotification(true)
-            .build()
+        val response =
+            CallResponse
+                .Builder()
+                .setDisallowCall(true)
+                .setRejectCall(true)
+                .setSkipNotification(true)
+                .build()
         respondToCall(callDetails, response)
         Timber.d("Call rejected")
     }
 
     private fun allowCall(callDetails: Call.Details) {
-        val response = CallResponse.Builder()
-            .setDisallowCall(false)
-            .setRejectCall(false)
-            .build()
+        val response =
+            CallResponse
+                .Builder()
+                .setDisallowCall(false)
+                .setRejectCall(false)
+                .build()
         respondToCall(callDetails, response)
         Timber.d("Call allowed")
     }
@@ -80,6 +83,8 @@ class BikeCallScreeningService : CallScreeningService() {
     }
 
     companion object {
+        private const val TEL_URI_PREFIX = "tel:"
+
         /**
          * Extracts the phone number from a tel: URI.
          *
@@ -87,11 +92,10 @@ class BikeCallScreeningService : CallScreeningService() {
          * @return The extracted phone number, or null if invalid
          */
         fun extractPhoneNumber(input: String?): String? {
-            if (input == null || !input.startsWith("tel:")) {
+            if (input == null || !input.startsWith(TEL_URI_PREFIX)) {
                 return null
             }
-            return input.substring(4).replace("%2B", "+")
+            return input.removePrefix(TEL_URI_PREFIX).replace("%2B", "+")
         }
     }
 }
-

@@ -8,6 +8,5 @@ package com.example.bikeridedetection.domain.model
  */
 data class CallInfo(
     val phoneNumber: String,
-    val isFromContact: Boolean = false
+    val isFromContact: Boolean = false,
 )
-

@@ -24,7 +24,7 @@ import javax.inject.Inject
 data class MainUiState(
     val bikeMode: BikeMode = BikeMode(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
 )
 
 /**
@@ -32,77 +32,75 @@ data class MainUiState(
  * Manages bike mode state using StateFlow and coroutines.
  */
 @HiltViewModel
-class MainViewModel @Inject constructor(
-    private val observeBikeModeUseCase: ObserveBikeModeUseCase,
-    private val setBikeModeEnabledUseCase: SetBikeModeEnabledUseCase,
-    private val toggleBikeModeUseCase: ToggleBikeModeUseCase
-) : ViewModel() {
+class MainViewModel
+    @Inject
+    constructor(
+        private val observeBikeModeUseCase: ObserveBikeModeUseCase,
+        private val setBikeModeEnabledUseCase: SetBikeModeEnabledUseCase,
+        private val toggleBikeModeUseCase: ToggleBikeModeUseCase,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(MainUiState())
+        val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(MainUiState())
-    val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
+        init {
+            observeBikeMode()
+        }
 
-    init {
-        observeBikeMode()
-    }
+        private fun observeBikeMode() {
+            observeBikeModeUseCase()
+                .onEach { bikeMode ->
+                    _uiState.update { it.copy(bikeMode = bikeMode, isLoading = false) }
+                }.catch { error ->
+                    Timber.e(error, "Error observing bike mode")
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Failed to load bike mode settings",
+                        )
+                    }
+                }.launchIn(viewModelScope)
+        }
 
-    private fun observeBikeMode() {
-        observeBikeModeUseCase()
-            .onEach { bikeMode ->
-                _uiState.update { it.copy(bikeMode = bikeMode, isLoading = false) }
-            }
-            .catch { error ->
-                Timber.e(error, "Error observing bike mode")
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Failed to load bike mode settings"
-                    )
-                }
-            }
-            .launchIn(viewModelScope)
-    }
-
-    /**
-     * Sets whether bike mode is enabled.
-     *
-     * @param enabled Whether bike mode should be enabled
-     */
-    fun setBikeModeEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            try {
-                setBikeModeEnabledUseCase(enabled)
-                Timber.d("Bike mode set to: $enabled")
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to set bike mode")
-                _uiState.update {
-                    it.copy(errorMessage = "Failed to update bike mode")
+        /**
+         * Sets whether bike mode is enabled.
+         *
+         * @param enabled Whether bike mode should be enabled
+         */
+        fun setBikeModeEnabled(enabled: Boolean) {
+            viewModelScope.launch {
+                try {
+                    setBikeModeEnabledUseCase(enabled)
+                    Timber.d("Bike mode set to: $enabled")
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to set bike mode")
+                    _uiState.update {
+                        it.copy(errorMessage = "Failed to update bike mode")
+                    }
                 }
             }
         }
-    }
 
-    /**
-     * Toggles the current bike mode state.
-     */
-    fun toggleBikeMode() {
-        viewModelScope.launch {
-            try {
-                toggleBikeModeUseCase()
-                Timber.d("Bike mode toggled")
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to toggle bike mode")
-                _uiState.update {
-                    it.copy(errorMessage = "Failed to toggle bike mode")
+        /**
+         * Toggles the current bike mode state.
+         */
+        fun toggleBikeMode() {
+            viewModelScope.launch {
+                try {
+                    toggleBikeModeUseCase()
+                    Timber.d("Bike mode toggled")
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to toggle bike mode")
+                    _uiState.update {
+                        it.copy(errorMessage = "Failed to toggle bike mode")
+                    }
                 }
             }
         }
-    }
 
-    /**
-     * Clears the current error message.
-     */
-    fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+        /**
+         * Clears the current error message.
+         */
+        fun clearError() {
+            _uiState.update { it.copy(errorMessage = null) }
+        }
     }
-}
-

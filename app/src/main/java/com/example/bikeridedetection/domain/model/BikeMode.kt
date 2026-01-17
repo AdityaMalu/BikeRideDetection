@@ -8,10 +8,9 @@ package com.example.bikeridedetection.domain.model
  */
 data class BikeMode(
     val isEnabled: Boolean = false,
-    val autoReplyMessage: String = DEFAULT_AUTO_REPLY
+    val autoReplyMessage: String = DEFAULT_AUTO_REPLY,
 ) {
     companion object {
         const val DEFAULT_AUTO_REPLY = "I'm riding my bike right now."
     }
 }
-

@@ -15,14 +15,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     /**
      * Provides the SmsManager instance.
      */
     @Provides
     @Singleton
-    fun provideSmsManager(@ApplicationContext context: Context): SmsManager {
-        return context.getSystemService(SmsManager::class.java)
-    }
+    fun provideSmsManager(
+        @ApplicationContext context: Context,
+    ): SmsManager = context.getSystemService(SmsManager::class.java)
 }
-

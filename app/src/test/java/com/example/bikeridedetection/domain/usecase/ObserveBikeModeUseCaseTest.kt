@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 
 class ObserveBikeModeUseCaseTest {
-
     private lateinit var repository: BikeModeRepository
     private lateinit var useCase: ObserveBikeModeUseCase
 
@@ -23,27 +22,28 @@ class ObserveBikeModeUseCaseTest {
     }
 
     @Test
-    fun `should emit bike mode from repository`() = runTest {
-        val bikeMode = BikeMode(isEnabled = true, autoReplyMessage = "Test message")
-        every { repository.observeBikeMode() } returns flowOf(bikeMode)
+    fun `should emit bike mode from repository`() =
+        runTest {
+            val bikeMode = BikeMode(isEnabled = true, autoReplyMessage = "Test message")
+            every { repository.observeBikeMode() } returns flowOf(bikeMode)
 
-        useCase().test {
-            assertEquals(bikeMode, awaitItem())
-            awaitComplete()
+            useCase().test {
+                assertEquals(bikeMode, awaitItem())
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun `should emit multiple bike mode updates`() = runTest {
-        val bikeMode1 = BikeMode(isEnabled = false)
-        val bikeMode2 = BikeMode(isEnabled = true)
-        every { repository.observeBikeMode() } returns flowOf(bikeMode1, bikeMode2)
+    fun `should emit multiple bike mode updates`() =
+        runTest {
+            val bikeMode1 = BikeMode(isEnabled = false)
+            val bikeMode2 = BikeMode(isEnabled = true)
+            every { repository.observeBikeMode() } returns flowOf(bikeMode1, bikeMode2)
 
-        useCase().test {
-            assertEquals(bikeMode1, awaitItem())
-            assertEquals(bikeMode2, awaitItem())
-            awaitComplete()
+            useCase().test {
+                assertEquals(bikeMode1, awaitItem())
+                assertEquals(bikeMode2, awaitItem())
+                awaitComplete()
+            }
         }
-    }
 }
-

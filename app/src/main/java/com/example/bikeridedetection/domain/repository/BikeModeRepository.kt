@@ -35,4 +35,3 @@ interface BikeModeRepository {
      */
     suspend fun setAutoReplyMessage(message: String)
 }
-

@@ -23,7 +23,7 @@ complexity:
   ComplexCondition:
     active: true
     threshold: 4
-  ComplexMethod:
+  CyclomaticComplexMethod:
     active: true
     threshold: 15
   LargeClass:

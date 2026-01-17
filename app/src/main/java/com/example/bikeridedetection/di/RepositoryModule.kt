@@ -16,23 +16,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
     /**
      * Binds [BikeModeRepositoryImpl] to [BikeModeRepository].
      */
     @Binds
     @Singleton
-    abstract fun bindBikeModeRepository(
-        impl: BikeModeRepositoryImpl
-    ): BikeModeRepository
+    abstract fun bindBikeModeRepository(impl: BikeModeRepositoryImpl): BikeModeRepository
 
     /**
      * Binds [SmsRepositoryImpl] to [SmsRepository].
      */
     @Binds
     @Singleton
-    abstract fun bindSmsRepository(
-        impl: SmsRepositoryImpl
-    ): SmsRepository
+    abstract fun bindSmsRepository(impl: SmsRepositoryImpl): SmsRepository
 }
-

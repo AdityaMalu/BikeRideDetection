@@ -12,7 +12,9 @@ sealed class Result<out T> {
      *
      * @param data The result data
      */
-    data class Success<out T>(val data: T) : Result<T>()
+    data class Success<out T>(
+        val data: T,
+    ) : Result<T>()
 
     /**
      * Represents a failed operation with an error.
@@ -22,7 +24,7 @@ sealed class Result<out T> {
      */
     data class Error(
         val error: Throwable? = null,
-        val message: String = error?.message ?: "An unknown error occurred"
+        val message: String = error?.message ?: "An unknown error occurred",
     ) : Result<Nothing>()
 
     /**
@@ -58,11 +60,12 @@ sealed class Result<out T> {
     /**
      * Maps the success data to a new type.
      */
-    inline fun <R> map(transform: (T) -> R): Result<R> = when (this) {
-        is Success -> Success(transform(data))
-        is Error -> this
-        is Loading -> this
-    }
+    inline fun <R> map(transform: (T) -> R): Result<R> =
+        when (this) {
+            is Success -> Success(transform(data))
+            is Error -> this
+            is Loading -> this
+        }
 
     /**
      * Executes the given block if this is a success.
@@ -84,11 +87,9 @@ sealed class Result<out T> {
 /**
  * Wraps a suspending block in a Result, catching any exceptions.
  */
-suspend inline fun <T> runCatching(block: suspend () -> T): Result<T> {
-    return try {
+suspend inline fun <T> runCatching(block: suspend () -> T): Result<T> =
+    try {
         Result.Success(block())
     } catch (e: Exception) {
         Result.Error(e)
     }
-}
-

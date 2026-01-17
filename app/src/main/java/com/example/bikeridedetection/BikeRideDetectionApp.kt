@@ -13,7 +13,6 @@ import timber.log.Timber
  */
 @HiltAndroidApp
 class BikeRideDetectionApp : Application() {
-
     override fun onCreate() {
         super.onCreate()
         initializeTimber()
@@ -52,7 +51,12 @@ class BikeRideDetectionApp : Application() {
      * Only logs warnings and errors to avoid cluttering crash reports.
      */
     private class CrashlyticsTree : Timber.Tree() {
-        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        override fun log(
+            priority: Int,
+            tag: String?,
+            message: String,
+            t: Throwable?,
+        ) {
             if (priority < Log.WARN) {
                 return // Only log warnings and errors
             }
@@ -66,4 +70,3 @@ class BikeRideDetectionApp : Application() {
         }
     }
 }
-

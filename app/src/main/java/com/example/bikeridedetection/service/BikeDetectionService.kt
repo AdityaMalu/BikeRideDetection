@@ -25,7 +25,6 @@ import timber.log.Timber
  */
 @AndroidEntryPoint
 class BikeDetectionService : Service() {
-
     private lateinit var activityRecognitionClient: ActivityRecognitionClient
     private var transitionPendingIntent: PendingIntent? = null
 
@@ -38,58 +37,66 @@ class BikeDetectionService : Service() {
     }
 
     private fun requestActivityUpdates() {
-        val transitions = listOf(
-            ActivityTransition.Builder()
-                .setActivityType(DetectedActivity.ON_BICYCLE)
-                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                .build(),
-            ActivityTransition.Builder()
-                .setActivityType(DetectedActivity.ON_BICYCLE)
-                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                .build()
-        )
+        val transitions =
+            listOf(
+                ActivityTransition
+                    .Builder()
+                    .setActivityType(DetectedActivity.ON_BICYCLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build(),
+                ActivityTransition
+                    .Builder()
+                    .setActivityType(DetectedActivity.ON_BICYCLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build(),
+            )
 
         val request = ActivityTransitionRequest(transitions)
         val intent = Intent(this, BikeTransitionReceiver::class.java)
-        transitionPendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        transitionPendingIntent =
+            PendingIntent.getBroadcast(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
         if (ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACTIVITY_RECOGNITION
+                this,
+                Manifest.permission.ACTIVITY_RECOGNITION,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Timber.e("Missing ACTIVITY_RECOGNITION permission")
             return
         }
 
-        activityRecognitionClient.requestActivityTransitionUpdates(
-            request, transitionPendingIntent!!
-        ).addOnSuccessListener {
-            Timber.d("Bike activity updates registered")
-        }.addOnFailureListener { e ->
-            Timber.e(e, "Failed to register bike updates")
-        }
+        activityRecognitionClient
+            .requestActivityTransitionUpdates(
+                request,
+                transitionPendingIntent!!,
+            ).addOnSuccessListener {
+                Timber.d("Bike activity updates registered")
+            }.addOnFailureListener { e ->
+                Timber.e(e, "Failed to register bike updates")
+            }
     }
 
-    private fun createNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+    private fun createNotification(): Notification =
+        NotificationCompat
+            .Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_detection_title))
             .setContentText(getString(R.string.notification_detection_text))
             .setSmallIcon(R.drawable.ic_bike)
             .setOngoing(true)
             .build()
-    }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.channel_detection_name),
-            NotificationManager.IMPORTANCE_LOW
-        )
+        val channel =
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.channel_detection_name),
+                NotificationManager.IMPORTANCE_LOW,
+            )
         val manager = getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)
     }
@@ -109,4 +116,3 @@ class BikeDetectionService : Service() {
         private const val NOTIFICATION_ID = 1
     }
 }
-

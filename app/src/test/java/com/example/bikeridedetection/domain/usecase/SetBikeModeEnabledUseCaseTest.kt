@@ -9,7 +9,6 @@ import org.junit.Before
 import org.junit.Test
 
 class SetBikeModeEnabledUseCaseTest {
-
     private lateinit var repository: BikeModeRepository
     private lateinit var useCase: SetBikeModeEnabledUseCase
 
@@ -20,21 +19,22 @@ class SetBikeModeEnabledUseCaseTest {
     }
 
     @Test
-    fun `should enable bike mode`() = runTest {
-        coEvery { repository.setBikeModeEnabled(true) } returns Unit
+    fun `should enable bike mode`() =
+        runTest {
+            coEvery { repository.setBikeModeEnabled(true) } returns Unit
 
-        useCase(true)
+            useCase(true)
 
-        coVerify { repository.setBikeModeEnabled(true) }
-    }
+            coVerify { repository.setBikeModeEnabled(true) }
+        }
 
     @Test
-    fun `should disable bike mode`() = runTest {
-        coEvery { repository.setBikeModeEnabled(false) } returns Unit
+    fun `should disable bike mode`() =
+        runTest {
+            coEvery { repository.setBikeModeEnabled(false) } returns Unit
 
-        useCase(false)
+            useCase(false)
 
-        coVerify { repository.setBikeModeEnabled(false) }
-    }
+            coVerify { repository.setBikeModeEnabled(false) }
+        }
 }
-

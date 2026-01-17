@@ -29,7 +29,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
 
@@ -38,28 +37,30 @@ class MainActivity : AppCompatActivity() {
 
     private var isUpdatingFromViewModel = false
 
-    private val locationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.all { it.value }
-        if (allGranted) {
-            Timber.d("Location permissions granted")
-            startBikeDetectionService()
-        } else {
-            Timber.w("Location permissions denied")
-            showPermissionDeniedMessage()
+    private val locationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions(),
+        ) { permissions ->
+            val allGranted = permissions.all { it.value }
+            if (allGranted) {
+                Timber.d("Location permissions granted")
+                startBikeDetectionService()
+            } else {
+                Timber.w("Location permissions denied")
+                showPermissionDeniedMessage()
+            }
         }
-    }
 
-    private val notificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            Timber.d("Notification permission granted")
-        } else {
-            Timber.w("Notification permission denied")
+    private val notificationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                Timber.d("Notification permission granted")
+            } else {
+                Timber.w("Notification permission denied")
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,9 +100,10 @@ class MainActivity : AppCompatActivity() {
         if (binding.switchBikeMode.isChecked != isEnabled) {
             binding.switchBikeMode.isChecked = isEnabled
         }
-        binding.statusText.text = getString(
-            if (isEnabled) STATUS_ON_RES else STATUS_OFF_RES
-        )
+        binding.statusText.text =
+            getString(
+                if (isEnabled) STATUS_ON_RES else STATUS_OFF_RES,
+            )
         isUpdatingFromViewModel = false
     }
 
@@ -127,7 +129,8 @@ class MainActivity : AppCompatActivity() {
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.POST_NOTIFICATIONS
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS,
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -136,13 +139,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestLocationPermissions() {
-        val permissions = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-        val allGranted = permissions.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-        }
+        val permissions =
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
+        val allGranted =
+            permissions.all {
+                ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+            }
         if (allGranted) {
             startBikeDetectionService()
         } else {
@@ -156,11 +161,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showPermissionDeniedMessage() {
-        Snackbar.make(
-            binding.root,
-            "Location permission is required for bike detection",
-            Snackbar.LENGTH_LONG
-        ).show()
+        Snackbar
+            .make(
+                binding.root,
+                "Location permission is required for bike detection",
+                Snackbar.LENGTH_LONG,
+            ).show()
     }
 
     private fun showError(message: String) {
@@ -187,4 +193,3 @@ class MainActivity : AppCompatActivity() {
         private val STATUS_OFF_RES = com.example.bikeridedetection.R.string.status_off
     }
 }
-

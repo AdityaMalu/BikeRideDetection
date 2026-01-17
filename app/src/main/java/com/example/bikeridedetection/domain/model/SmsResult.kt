@@ -9,7 +9,9 @@ sealed class SmsResult {
      *
      * @property phoneNumber The recipient phone number
      */
-    data class Sent(val phoneNumber: String) : SmsResult()
+    data class Sent(
+        val phoneNumber: String,
+    ) : SmsResult()
 
     /**
      * SMS sending failed.
@@ -19,7 +21,7 @@ sealed class SmsResult {
      */
     data class Failed(
         val phoneNumber: String,
-        val error: Throwable
+        val error: Throwable,
     ) : SmsResult()
 
     /**
@@ -27,4 +29,3 @@ sealed class SmsResult {
      */
     data object InvalidNumber : SmsResult()
 }
-

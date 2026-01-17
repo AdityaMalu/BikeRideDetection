@@ -11,20 +11,20 @@ import javax.inject.Singleton
  * Implementation of [BikeModeRepository] using DataStore.
  */
 @Singleton
-class BikeModeRepositoryImpl @Inject constructor(
-    private val dataStore: BikeModeDataStore
-) : BikeModeRepository {
+class BikeModeRepositoryImpl
+    @Inject
+    constructor(
+        private val dataStore: BikeModeDataStore,
+    ) : BikeModeRepository {
+        override fun observeBikeMode(): Flow<BikeMode> = dataStore.observeBikeMode()
 
-    override fun observeBikeMode(): Flow<BikeMode> = dataStore.observeBikeMode()
+        override suspend fun getBikeMode(): BikeMode = dataStore.getBikeMode()
 
-    override suspend fun getBikeMode(): BikeMode = dataStore.getBikeMode()
+        override suspend fun setBikeModeEnabled(enabled: Boolean) {
+            dataStore.setBikeModeEnabled(enabled)
+        }
 
-    override suspend fun setBikeModeEnabled(enabled: Boolean) {
-        dataStore.setBikeModeEnabled(enabled)
+        override suspend fun setAutoReplyMessage(message: String) {
+            dataStore.setAutoReplyMessage(message)
+        }
     }
-
-    override suspend fun setAutoReplyMessage(message: String) {
-        dataStore.setAutoReplyMessage(message)
-    }
-}
-

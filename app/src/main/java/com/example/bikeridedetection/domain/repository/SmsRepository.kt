@@ -13,6 +13,8 @@ interface SmsRepository {
      * @param message The message to send
      * @return The result of the SMS operation
      */
-    suspend fun sendSms(phoneNumber: String, message: String): SmsResult
+    suspend fun sendSms(
+        phoneNumber: String,
+        message: String,
+    ): SmsResult
 }
-
