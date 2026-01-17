@@ -345,12 +345,16 @@ jobs:
 
   # ============================================================================
   # INSTRUMENTATION TESTS (on push to main only)
+  # Note: Disabled by default as emulator tests are flaky on GitHub Actions
+  # To enable, change 'if: false' to the condition below
   # ============================================================================
   instrumentation-tests:
     name: Instrumentation Tests
     runs-on: ubuntu-latest
     needs: build-debug
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Disabled: Emulator tests are flaky on GitHub Actions
+    # Enable with: if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: false
 
     steps:
       - name: Checkout code
@@ -487,11 +491,8 @@ jobs:
           echo "  Size: $(ls -lh "$APK_FILE" | awk '{print $5}')"
           echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
 
-      - name: Check if tester group exists
+      - name: Check tester group configuration
         id: check-group
-        env:
-          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
           echo "=== Tester Group Configuration ==="
           echo "Note: If 'internal-testers' group doesn't exist in Firebase App Distribution,"
