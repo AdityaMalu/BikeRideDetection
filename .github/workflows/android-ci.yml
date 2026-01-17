@@ -1,0 +1,307 @@
+name: Android CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, v2, develop ]
+  pull_request:
+    branches: [ main, v2 ]
+
+env:
+  JAVA_VERSION: '17'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  # ============================================================================
+  # CODE QUALITY CHECKS
+  # ============================================================================
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck --continue
+        continue-on-error: true
+
+      - name: Run detekt
+        run: ./gradlew detekt --continue
+        continue-on-error: true
+
+      - name: Upload ktlint report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ktlint-report
+          path: app/build/reports/ktlint/
+          retention-days: 7
+
+      - name: Upload detekt report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: detekt-report
+          path: app/build/reports/detekt/
+          retention-days: 7
+
+  # ============================================================================
+  # UNIT TESTS
+  # ============================================================================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: code-quality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Create dummy google-services.json
+        run: |
+          cat > app/google-services.json << 'EOF'
+          {
+            "project_info": {"project_number": "000000000000", "project_id": "dummy-project", "storage_bucket": "dummy-project.appspot.com"},
+            "client": [{"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.example.bikeridedetection"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}, {"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000001", "android_client_info": {"package_name": "com.example.bikeridedetection.debug"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+            "configuration_version": "1"
+          }
+          EOF
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: app/build/reports/tests/
+          retention-days: 7
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-coverage
+          path: app/build/reports/coverage/
+          retention-days: 7
+
+  # ============================================================================
+  # BUILD DEBUG APK
+  # ============================================================================
+  build-debug:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Create dummy google-services.json
+        run: |
+          cat > app/google-services.json << 'EOF'
+          {
+            "project_info": {"project_number": "000000000000", "project_id": "dummy-project", "storage_bucket": "dummy-project.appspot.com"},
+            "client": [{"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.example.bikeridedetection"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}, {"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000001", "android_client_info": {"package_name": "com.example.bikeridedetection.debug"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+            "configuration_version": "1"
+          }
+          EOF
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+
+  # ============================================================================
+  # BUILD RELEASE APK
+  # ============================================================================
+  build-release:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/v2')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/google-services.json
+          else
+            echo "Warning: GOOGLE_SERVICES_JSON secret not set, using dummy"
+            cat > app/google-services.json << 'EOF'
+          {
+            "project_info": {"project_number": "000000000000", "project_id": "dummy-project", "storage_bucket": "dummy-project.appspot.com"},
+            "client": [{"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.example.bikeridedetection"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+            "configuration_version": "1"
+          }
+          EOF
+          fi
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            mkdir -p keystores
+            echo "$KEYSTORE_BASE64" | base64 -d > keystores/bikeride-release.jks
+            cat > keystore.properties << EOF
+          storeFile=keystores/bikeride-release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+          fi
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/app-release*.apk
+          retention-days: 30
+
+  # ============================================================================
+  # INSTRUMENTATION TESTS (on push to main only)
+  # ============================================================================
+  instrumentation-tests:
+    name: Instrumentation Tests
+    runs-on: ubuntu-latest
+    needs: build-debug
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Create dummy google-services.json
+        run: |
+          cat > app/google-services.json << 'EOF'
+          {
+            "project_info": {"project_number": "000000000000", "project_id": "dummy-project", "storage_bucket": "dummy-project.appspot.com"},
+            "client": [{"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.example.bikeridedetection"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}, {"client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000001", "android_client_info": {"package_name": "com.example.bikeridedetection.debug"}}, "oauth_client": [], "api_key": [{"current_key": "dummy_key"}], "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+            "configuration_version": "1"
+          }
+          EOF
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run instrumentation tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew connectedDebugAndroidTest
+
+      - name: Upload instrumentation test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: instrumentation-test-results
+          path: app/build/reports/androidTests/
+          retention-days: 7
+
+  # ============================================================================
+  # FIREBASE APP DISTRIBUTION (Beta)
+  # ============================================================================
+  distribute-beta:
+    name: Distribute to Firebase
+    runs-on: ubuntu-latest
+    needs: build-release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          groups: internal-testers
+          file: app/build/outputs/apk/release/app-release-unsigned.apk
+          releaseNotes: |
+            Build: ${{ github.run_number }}
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref_name }}
+
+
