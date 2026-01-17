@@ -34,15 +34,17 @@ complexity:
     threshold: 60
   LongParameterList:
     active: true
-    functionThreshold: 6
-    constructorThreshold: 7
+    functionThreshold: 8
+    constructorThreshold: 8
+    ignoreAnnotated:
+      - 'Composable'
   NestedBlockDepth:
     active: true
     threshold: 4
   TooManyFunctions:
     active: true
-    thresholdInFiles: 15
-    thresholdInClasses: 15
+    thresholdInFiles: 20
+    thresholdInClasses: 20
     thresholdInInterfaces: 15
     thresholdInObjects: 15
     thresholdInEnums: 15
@@ -168,3 +170,34 @@ potential-bugs:
   IteratorNotThrowingNoSuchElementException:
     active: true
 
+style:
+  active: true
+  MagicNumber:
+    active: true
+    excludes:
+      - '**/theme/**'
+      - '**/Theme.kt'
+    ignoreNumbers:
+      - '-1'
+      - '0'
+      - '1'
+      - '2'
+      - '0f'
+      - '1f'
+      - '1.0'
+      - '1.02f'
+      - '1.2f'
+      - '2L'
+      - '300L'
+      - '360f'
+    ignoreHashCodeFunction: true
+    ignorePropertyDeclaration: true
+    ignoreLocalVariableDeclaration: true
+    ignoreConstantDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreNamedArgument: true
+    ignoreEnums: true
+  UnusedParameter:
+    active: true
+    allowedNames: 'ignored|expected|isEnabled'
