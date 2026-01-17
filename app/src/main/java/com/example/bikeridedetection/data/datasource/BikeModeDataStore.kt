@@ -31,6 +31,7 @@ class BikeModeDataStore
         private object PreferencesKeys {
             val BIKE_MODE_ENABLED = booleanPreferencesKey("bike_mode_enabled")
             val AUTO_REPLY_MESSAGE = stringPreferencesKey("auto_reply_message")
+            val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         }
 
         /**
@@ -74,6 +75,31 @@ class BikeModeDataStore
         suspend fun setAutoReplyMessage(message: String) {
             context.dataStore.edit { preferences ->
                 preferences[PreferencesKeys.AUTO_REPLY_MESSAGE] = message
+            }
+        }
+
+        /**
+         * Checks if onboarding has been completed.
+         */
+        fun observeOnboardingCompleted(): Flow<Boolean> =
+            context.dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.ONBOARDING_COMPLETED] ?: false
+            }
+
+        /**
+         * Gets whether onboarding has been completed.
+         */
+        suspend fun isOnboardingCompleted(): Boolean {
+            val preferences = context.dataStore.data.first()
+            return preferences[PreferencesKeys.ONBOARDING_COMPLETED] ?: false
+        }
+
+        /**
+         * Sets onboarding as completed.
+         */
+        suspend fun setOnboardingCompleted(completed: Boolean = true) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ONBOARDING_COMPLETED] = completed
             }
         }
     }

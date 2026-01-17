@@ -51,6 +51,13 @@
 
     <style name="Theme.BikeRideDetection" parent="Base.Theme.BikeRideDetection" />
 
+    <!-- Splash Screen Theme -->
+    <style name="Theme.BikeRideDetection.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_bike</item>
+        <item name="postSplashScreenTheme">@style/Theme.BikeRideDetection</item>
+    </style>
+
     <!-- Text Appearances -->
     <style name="TextAppearance.BikeRide.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
         <item name="android:textColor">@color/on_surface</item>

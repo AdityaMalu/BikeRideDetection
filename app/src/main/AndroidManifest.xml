@@ -38,16 +38,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BikeRideDetection">
 
+        <!-- Splash Screen - Entry Point -->
         <activity
-            android:name=".ui.activity.MainActivity"
-            android:launchMode="singleTop"
-            android:exported="true">
+            android:name=".ui.activity.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.BikeRideDetection.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Main Activity -->
+        <activity
+            android:name=".ui.activity.MainActivity"
+            android:launchMode="singleTop"
+            android:exported="false"
+            android:theme="@style/Theme.BikeRideDetection" />
+
+        <!-- Onboarding Activity -->
+        <activity
+            android:name=".ui.activity.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BikeRideDetection" />
+
+        <!-- Settings Activity -->
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:exported="false"

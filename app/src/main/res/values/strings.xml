@@ -70,4 +70,29 @@
     <!-- Announcements for Screen Readers -->
     <string name="announce_bike_mode_activated">Bike mode activated. Calls will be blocked.</string>
     <string name="announce_bike_mode_deactivated">Bike mode deactivated.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome to Bike Ride Detection</string>
+    <string name="onboarding_welcome_description">Stay safe while cycling by automatically managing calls and messages during your ride.</string>
+    <string name="onboarding_calls_title">Block Incoming Calls</string>
+    <string name="onboarding_calls_description">When Bike Mode is active, incoming calls will be automatically blocked so you can focus on the road.</string>
+    <string name="onboarding_sms_title">Auto-Reply Messages</string>
+    <string name="onboarding_sms_description">Callers will receive an automatic SMS letting them know you\'re cycling and will call back later.</string>
+    <string name="onboarding_permissions_title">Permissions Required</string>
+    <string name="onboarding_permissions_description">We need a few permissions to detect cycling activity and manage calls. Your privacy is protected.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+
+    <!-- Error States -->
+    <string name="error_title">Something went wrong</string>
+    <string name="error_retry">Retry</string>
+    <string name="error_network">Please check your connection and try again.</string>
+    <string name="error_permission_denied">Permission denied. Please grant the required permissions in Settings.</string>
+    <string name="error_open_settings">Open Settings</string>
+
+    <!-- Loading States -->
+    <string name="loading">Loading…</string>
+    <string name="loading_settings">Loading settings…</string>
 </resources>

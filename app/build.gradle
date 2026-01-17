@@ -186,6 +186,9 @@ dependencies {
     // Google Play Services Location
     implementation libs.play.services.location
 
+    // Splash Screen
+    implementation libs.splashscreen
+
     // Firebase (using BOM for version management)
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.crashlytics

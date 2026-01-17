@@ -41,6 +41,9 @@ detekt = "1.23.7"
 # Play Services
 playServicesLocation = "21.0.1"
 
+# Splash Screen
+splashscreen = "1.0.1"
+
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -96,6 +99,9 @@ firebase-perf = { group = "com.google.firebase", name = "firebase-perf-ktx" }
 
 # Google Play Services
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+
+# Splash Screen
+splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 # Testing
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
