@@ -1,11 +1,24 @@
 <resources>
     <string name="app_name">BikeRideDetection</string>
+    <string name="app_name_display">Bike Ride Detection</string>
+    <string name="app_tagline">Stay safe while cycling</string>
 
     <!-- Main Activity -->
     <string name="title_bike_mode">Bike Mode</string>
     <string name="switch_enable_bike_mode">Enable Bike Mode</string>
-    <string name="status_on">Status: ON</string>
-    <string name="status_off">Status: OFF</string>
+    <string name="status_on">Active</string>
+    <string name="status_off">Inactive</string>
+
+    <!-- Features Section -->
+    <string name="features_title">Features</string>
+    <string name="feature_call_blocking">Call Blocking</string>
+    <string name="feature_auto_reply">Auto Reply</string>
+    <string name="feature_status_ready">Ready</string>
+    <string name="feature_status_active">Active</string>
+
+    <!-- Safety Tips -->
+    <string name="safety_tip_title">Ride Safely</string>
+    <string name="safety_tip_message">When Bike Mode is on, incoming calls will be blocked and callers will receive an automatic reply.</string>
 
     <!-- Notifications -->
     <string name="notification_detection_title">Bike Detection Running</string>
@@ -29,4 +42,17 @@
     <string name="error_failed_to_load">Failed to load bike mode settings</string>
     <string name="error_failed_to_update">Failed to update bike mode</string>
     <string name="error_failed_to_toggle">Failed to toggle bike mode</string>
+
+    <!-- Accessibility Content Descriptions -->
+    <string name="cd_bike_icon">Bike mode indicator icon</string>
+    <string name="cd_bike_mode_switch">Toggle bike mode on or off</string>
+    <string name="cd_call_blocking">Call blocking feature</string>
+    <string name="cd_auto_reply">Auto reply feature</string>
+    <string name="cd_safety_shield">Safety protection indicator</string>
+    <string name="cd_status_active">Bike mode is currently active</string>
+    <string name="cd_status_inactive">Bike mode is currently inactive</string>
+
+    <!-- Announcements for Screen Readers -->
+    <string name="announce_bike_mode_activated">Bike mode activated. Calls will be blocked.</string>
+    <string name="announce_bike_mode_deactivated">Bike mode deactivated.</string>
 </resources>

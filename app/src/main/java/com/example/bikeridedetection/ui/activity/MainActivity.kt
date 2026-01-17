@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.bikeridedetection.R
 import com.example.bikeridedetection.databinding.ActivityMainBinding
 import com.example.bikeridedetection.service.BikeDetectionService
 import com.example.bikeridedetection.service.NotificationService
@@ -76,8 +78,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        binding.switchBikeMode.setOnCheckedChangeListener { _, isChecked ->
+        binding.switchBikeMode.setOnCheckedChangeListener { view, isChecked ->
             if (!isUpdatingFromViewModel) {
+                // Provide haptic feedback for toggle
+                view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                 viewModel.setBikeModeEnabled(isChecked)
             }
         }
@@ -97,13 +101,57 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUI(isEnabled: Boolean) {
         isUpdatingFromViewModel = true
+
+        // Update switch state
         if (binding.switchBikeMode.isChecked != isEnabled) {
             binding.switchBikeMode.isChecked = isEnabled
         }
-        binding.statusText.text =
-            getString(
-                if (isEnabled) STATUS_ON_RES else STATUS_OFF_RES,
-            )
+
+        // Update status text and styling
+        binding.statusText.text = getString(if (isEnabled) STATUS_ON_RES else STATUS_OFF_RES)
+        binding.statusText.setBackgroundResource(
+            if (isEnabled) R.drawable.bg_status_active else R.drawable.bg_status_inactive,
+        )
+        binding.statusText.setTextAppearance(
+            if (isEnabled) {
+                R.style.TextAppearance_BikeRide_StatusActive
+            } else {
+                R.style.TextAppearance_BikeRide_StatusInactive
+            },
+        )
+
+        // Update bike icon tint based on state
+        binding.bikeIcon.setColorFilter(
+            ContextCompat.getColor(
+                this,
+                if (isEnabled) R.color.status_active else R.color.status_inactive,
+            ),
+        )
+
+        // Update feature card status text
+        val featureStatusRes =
+            if (isEnabled) R.string.feature_status_active else R.string.feature_status_ready
+        val featureStatus = getString(featureStatusRes)
+        binding.callBlockingStatus.text = featureStatus
+        binding.autoReplyStatus.text = featureStatus
+
+        // Update accessibility content description
+        val statusDescription =
+            if (isEnabled) R.string.cd_status_active else R.string.cd_status_inactive
+        binding.switchBikeMode.contentDescription =
+            getString(R.string.cd_bike_mode_switch) + " " + getString(statusDescription)
+
+        // Announce state change for screen readers using accessibility event
+        val announcementRes =
+            if (isEnabled) {
+                R.string.announce_bike_mode_activated
+            } else {
+                R.string.announce_bike_mode_deactivated
+            }
+        val announcement = getString(announcementRes)
+        @Suppress("DEPRECATION")
+        binding.root.announceForAccessibility(announcement)
+
         isUpdatingFromViewModel = false
     }
 
@@ -189,7 +237,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val ACTION_BIKE_MODE_OFF = "com.example.bikeridedetection.ACTION_BIKE_MODE_OFF"
-        private val STATUS_ON_RES = com.example.bikeridedetection.R.string.status_on
-        private val STATUS_OFF_RES = com.example.bikeridedetection.R.string.status_off
+        private val STATUS_ON_RES = R.string.status_on
+        private val STATUS_OFF_RES = R.string.status_off
     }
 }
