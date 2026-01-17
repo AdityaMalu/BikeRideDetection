@@ -13,7 +13,6 @@ import kotlinx.coroutines.delay
  * within the limitations of the RemoteViews API.
  */
 object WidgetAnimationHelper {
-
     // Animation configuration
     private const val ANIMATION_DURATION_MS = 250L
     private const val ANIMATION_STEPS = 8
@@ -61,8 +60,11 @@ object WidgetAnimationHelper {
                 views.setInt(
                     R.id.widget_toggle_button,
                     "setBackgroundResource",
-                    if (toEnabled) R.drawable.widget_toggle_track_on
-                    else R.drawable.widget_toggle_track_off,
+                    if (toEnabled) {
+                        R.drawable.widget_toggle_track_on
+                    } else {
+                        R.drawable.widget_toggle_track_off
+                    },
                 )
             }
 
@@ -81,8 +83,11 @@ object WidgetAnimationHelper {
         finalViews.setInt(
             R.id.widget_toggle_thumb,
             "setBackgroundResource",
-            if (toEnabled) R.drawable.widget_toggle_thumb_on
-            else R.drawable.widget_toggle_thumb_off,
+            if (toEnabled) {
+                R.drawable.widget_toggle_thumb_on
+            } else {
+                R.drawable.widget_toggle_thumb_off
+            },
         )
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, finalViews)
     }
@@ -109,8 +114,11 @@ object WidgetAnimationHelper {
         views.setInt(
             R.id.widget_container,
             "setBackgroundResource",
-            if (toEnabled) R.drawable.widget_background_transition_to_active
-            else R.drawable.widget_background_transition_to_inactive,
+            if (toEnabled) {
+                R.drawable.widget_background_transition_to_active
+            } else {
+                R.drawable.widget_background_transition_to_inactive
+            },
         )
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
 
@@ -122,8 +130,11 @@ object WidgetAnimationHelper {
         finalViews.setInt(
             R.id.widget_container,
             "setBackgroundResource",
-            if (toEnabled) R.drawable.widget_background_active
-            else R.drawable.widget_background_inactive,
+            if (toEnabled) {
+                R.drawable.widget_background_active
+            } else {
+                R.drawable.widget_background_inactive
+            },
         )
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, finalViews)
     }
@@ -142,9 +153,10 @@ object WidgetAnimationHelper {
         appWidgetId: Int,
         toEnabled: Boolean,
     ) {
-        val targetColor = context.getColor(
-            if (toEnabled) R.color.status_active else R.color.status_inactive,
-        )
+        val targetColor =
+            context.getColor(
+                if (toEnabled) R.color.status_active else R.color.status_inactive,
+            )
 
         // Apply color change with slight delay for visual effect
         delay(ANIMATION_DURATION_MS / 3)
@@ -154,4 +166,3 @@ object WidgetAnimationHelper {
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
     }
 }
-

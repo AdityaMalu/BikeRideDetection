@@ -37,6 +37,10 @@
     <!-- Permissions -->
     <string name="permission_location_required">Location permission is required for bike detection</string>
     <string name="permission_notification_required">Notification permission is required to show bike mode status</string>
+    <string name="permission_progress">Step %1$d of %2$d</string>
+    <string name="permission_grant">Grant Permission</string>
+    <string name="permission_skip">Skip for now</string>
+    <string name="permission_flow_title">Setup Permissions</string>
 
     <!-- Errors -->
     <string name="error_failed_to_load">Failed to load bike mode settings</string>

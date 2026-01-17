@@ -20,7 +20,6 @@ import timber.log.Timber
  * Displays current bike mode status and allows users to toggle it directly from the home screen.
  */
 class BikeModeWidgetProvider : AppWidgetProvider() {
-
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -32,16 +31,20 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         super.onReceive(context, intent)
 
         when (intent.action) {
             ACTION_TOGGLE_BIKE_MODE -> {
                 Timber.d("Widget toggle action received")
                 // Start the service to toggle bike mode
-                val serviceIntent = Intent(context, BikeModeWidgetService::class.java).apply {
-                    action = BikeModeWidgetService.ACTION_TOGGLE
-                }
+                val serviceIntent =
+                    Intent(context, BikeModeWidgetService::class.java).apply {
+                        action = BikeModeWidgetService.ACTION_TOGGLE
+                    }
                 context.startService(serviceIntent)
             }
             ACTION_UPDATE_WIDGET -> {
@@ -61,9 +64,10 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         super.onEnabled(context)
         Timber.d("Widget enabled - first widget added")
         // Start observing bike mode state
-        val serviceIntent = Intent(context, BikeModeWidgetService::class.java).apply {
-            action = BikeModeWidgetService.ACTION_START_OBSERVING
-        }
+        val serviceIntent =
+            Intent(context, BikeModeWidgetService::class.java).apply {
+                action = BikeModeWidgetService.ACTION_START_OBSERVING
+            }
         context.startService(serviceIntent)
     }
 
@@ -71,9 +75,10 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         super.onDisabled(context)
         Timber.d("Widget disabled - last widget removed")
         // Stop observing bike mode state
-        val serviceIntent = Intent(context, BikeModeWidgetService::class.java).apply {
-            action = BikeModeWidgetService.ACTION_STOP_OBSERVING
-        }
+        val serviceIntent =
+            Intent(context, BikeModeWidgetService::class.java).apply {
+                action = BikeModeWidgetService.ACTION_STOP_OBSERVING
+            }
         context.startService(serviceIntent)
     }
 
@@ -89,7 +94,10 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         /**
          * Updates all widget instances with the current bike mode state (no animation).
          */
-        fun updateAllWidgets(context: Context, isEnabled: Boolean) {
+        fun updateAllWidgets(
+            context: Context,
+            isEnabled: Boolean,
+        ) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val componentName = ComponentName(context, BikeModeWidgetProvider::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
@@ -103,7 +111,10 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
         /**
          * Updates all widget instances with smooth animations.
          */
-        fun updateAllWidgetsAnimated(context: Context, isEnabled: Boolean) {
+        fun updateAllWidgetsAnimated(
+            context: Context,
+            isEnabled: Boolean,
+        ) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val componentName = ComponentName(context, BikeModeWidgetProvider::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
@@ -185,8 +196,11 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(
                 R.id.widget_status_text,
                 context.getString(
-                    if (isEnabled) R.string.widget_status_active
-                    else R.string.widget_status_ready,
+                    if (isEnabled) {
+                        R.string.widget_status_active
+                    } else {
+                        R.string.widget_status_ready
+                    },
                 ),
             )
 
@@ -194,8 +208,11 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(
                 R.id.widget_status_description,
                 context.getString(
-                    if (isEnabled) R.string.widget_calls_blocked
-                    else R.string.widget_tap_to_enable,
+                    if (isEnabled) {
+                        R.string.widget_calls_blocked
+                    } else {
+                        R.string.widget_tap_to_enable
+                    },
                 ),
             )
 
@@ -217,8 +234,11 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setInt(
                 R.id.widget_container,
                 "setBackgroundResource",
-                if (isEnabled) R.drawable.widget_background_active
-                else R.drawable.widget_background_inactive,
+                if (isEnabled) {
+                    R.drawable.widget_background_active
+                } else {
+                    R.drawable.widget_background_inactive
+                },
             )
 
             // Update bike icon tint
@@ -232,8 +252,11 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(
                 R.id.widget_status_text,
                 context.getString(
-                    if (isEnabled) R.string.widget_status_active
-                    else R.string.widget_status_ready,
+                    if (isEnabled) {
+                        R.string.widget_status_active
+                    } else {
+                        R.string.widget_status_ready
+                    },
                 ),
             )
 
@@ -241,8 +264,11 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(
                 R.id.widget_status_description,
                 context.getString(
-                    if (isEnabled) R.string.widget_calls_blocked
-                    else R.string.widget_tap_to_enable,
+                    if (isEnabled) {
+                        R.string.widget_calls_blocked
+                    } else {
+                        R.string.widget_tap_to_enable
+                    },
                 ),
             )
 
@@ -250,26 +276,33 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             views.setInt(
                 R.id.widget_toggle_button,
                 "setBackgroundResource",
-                if (isEnabled) R.drawable.widget_toggle_track_on
-                else R.drawable.widget_toggle_track_off,
+                if (isEnabled) {
+                    R.drawable.widget_toggle_track_on
+                } else {
+                    R.drawable.widget_toggle_track_off
+                },
             )
 
             // Update toggle switch thumb drawable
             views.setInt(
                 R.id.widget_toggle_thumb,
                 "setBackgroundResource",
-                if (isEnabled) R.drawable.widget_toggle_thumb_on
-                else R.drawable.widget_toggle_thumb_off,
+                if (isEnabled) {
+                    R.drawable.widget_toggle_thumb_on
+                } else {
+                    R.drawable.widget_toggle_thumb_off
+                },
             )
 
             // Update toggle thumb position using layout params
             // For ON state: thumb moves to the right (end)
             // For OFF state: thumb stays at the left (start)
-            val thumbMarginStart = if (isEnabled) {
-                context.resources.getDimensionPixelSize(R.dimen.widget_toggle_thumb_margin_on)
-            } else {
-                context.resources.getDimensionPixelSize(R.dimen.widget_toggle_thumb_margin_off)
-            }
+            val thumbMarginStart =
+                if (isEnabled) {
+                    context.resources.getDimensionPixelSize(R.dimen.widget_toggle_thumb_margin_on)
+                } else {
+                    context.resources.getDimensionPixelSize(R.dimen.widget_toggle_thumb_margin_off)
+                }
             views.setViewLayoutMargin(
                 R.id.widget_toggle_thumb,
                 RemoteViews.MARGIN_START,
@@ -278,31 +311,34 @@ class BikeModeWidgetProvider : AppWidgetProvider() {
             )
 
             // Set click intent for toggle switch
-            val toggleIntent = Intent(context, BikeModeWidgetProvider::class.java).apply {
-                action = ACTION_TOGGLE_BIKE_MODE
-            }
-            val togglePendingIntent = PendingIntent.getBroadcast(
-                context,
-                0,
-                toggleIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+            val toggleIntent =
+                Intent(context, BikeModeWidgetProvider::class.java).apply {
+                    action = ACTION_TOGGLE_BIKE_MODE
+                }
+            val togglePendingIntent =
+                PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    toggleIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             views.setOnClickPendingIntent(R.id.widget_toggle_button, togglePendingIntent)
 
             // Set click intent for widget container to open app
-            val openAppIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val openAppPendingIntent = PendingIntent.getActivity(
-                context,
-                1,
-                openAppIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+            val openAppIntent =
+                Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+            val openAppPendingIntent =
+                PendingIntent.getActivity(
+                    context,
+                    1,
+                    openAppIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             views.setOnClickPendingIntent(R.id.widget_container, openAppPendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
 }
-

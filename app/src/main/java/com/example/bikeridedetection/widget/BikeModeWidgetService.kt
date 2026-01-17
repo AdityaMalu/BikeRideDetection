@@ -26,7 +26,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class BikeModeWidgetService : Service() {
-
     @Inject
     lateinit var toggleBikeModeUseCase: ToggleBikeModeUseCase
 
@@ -38,7 +37,11 @@ class BikeModeWidgetService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         Timber.d("BikeModeWidgetService onStartCommand: ${intent?.action}")
 
         when (intent?.action) {
@@ -82,25 +85,25 @@ class BikeModeWidgetService : Service() {
         }
 
         Timber.d("Starting to observe bike mode state for widget")
-        observeJob = observeBikeModeUseCase()
-            .onEach { bikeMode ->
-                Timber.d("Widget received bike mode update: isEnabled=${bikeMode.isEnabled}")
+        observeJob =
+            observeBikeModeUseCase()
+                .onEach { bikeMode ->
+                    Timber.d("Widget received bike mode update: isEnabled=${bikeMode.isEnabled}")
 
-                // Update all widgets with animation
-                val updateIntent = Intent(this, BikeModeWidgetProvider::class.java).apply {
-                    action = BikeModeWidgetProvider.ACTION_UPDATE_WIDGET
-                    putExtra(BikeModeWidgetProvider.EXTRA_IS_ENABLED, bikeMode.isEnabled)
-                    putExtra(BikeModeWidgetProvider.EXTRA_ANIMATE, true)
-                }
-                sendBroadcast(updateIntent)
+                    // Update all widgets with animation
+                    val updateIntent =
+                        Intent(this, BikeModeWidgetProvider::class.java).apply {
+                            action = BikeModeWidgetProvider.ACTION_UPDATE_WIDGET
+                            putExtra(BikeModeWidgetProvider.EXTRA_IS_ENABLED, bikeMode.isEnabled)
+                            putExtra(BikeModeWidgetProvider.EXTRA_ANIMATE, true)
+                        }
+                    sendBroadcast(updateIntent)
 
-                // Update NotificationService to keep it in sync
-                updateNotificationService(bikeMode.isEnabled)
-            }
-            .catch { error ->
-                Timber.e(error, "Error observing bike mode state for widget")
-            }
-            .launchIn(serviceScope)
+                    // Update NotificationService to keep it in sync
+                    updateNotificationService(bikeMode.isEnabled)
+                }.catch { error ->
+                    Timber.e(error, "Error observing bike mode state for widget")
+                }.launchIn(serviceScope)
     }
 
     /**
@@ -136,4 +139,3 @@ class BikeModeWidgetService : Service() {
         const val ACTION_STOP_OBSERVING = "com.example.bikeridedetection.widget.ACTION_STOP_OBSERVING"
     }
 }
-

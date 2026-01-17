@@ -33,9 +33,10 @@ class BikeRideDetectionApp : Application() {
 
         if (appWidgetIds.isNotEmpty()) {
             Timber.d("Found ${appWidgetIds.size} active widgets, starting widget service")
-            val serviceIntent = Intent(this, BikeModeWidgetService::class.java).apply {
-                action = BikeModeWidgetService.ACTION_START_OBSERVING
-            }
+            val serviceIntent =
+                Intent(this, BikeModeWidgetService::class.java).apply {
+                    action = BikeModeWidgetService.ACTION_START_OBSERVING
+                }
             startService(serviceIntent)
         }
     }

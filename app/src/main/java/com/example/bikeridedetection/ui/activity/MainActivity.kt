@@ -1,12 +1,9 @@
 package com.example.bikeridedetection.ui.activity
 
-import android.Manifest
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -24,7 +21,7 @@ import com.example.bikeridedetection.databinding.ActivityMainBinding
 import com.example.bikeridedetection.service.BikeDetectionService
 import com.example.bikeridedetection.service.NotificationService
 import com.example.bikeridedetection.ui.viewmodel.MainViewModel
-import com.example.bikeridedetection.util.PermissionHelper
+import com.example.bikeridedetection.util.PermissionManager
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -41,34 +38,19 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     @Inject
-    lateinit var permissionHelper: PermissionHelper
+    lateinit var permissionManager: PermissionManager
 
     private var isUpdatingFromViewModel = false
     private var previousBikeModeState: Boolean? = null
+    private var hasCheckedPermissions = false
 
-    private val locationPermissionLauncher =
+    private val permissionFlowLauncher =
         registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions(),
-        ) { permissions ->
-            val allGranted = permissions.all { it.value }
-            if (allGranted) {
-                Timber.d("Location permissions granted")
-                startBikeDetectionService()
-            } else {
-                Timber.w("Location permissions denied")
-                showPermissionDeniedMessage()
-            }
-        }
-
-    private val notificationPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission(),
-        ) { isGranted ->
-            if (isGranted) {
-                Timber.d("Notification permission granted")
-            } else {
-                Timber.w("Notification permission denied")
-            }
+            ActivityResultContracts.StartActivityForResult(),
+        ) { _ ->
+            Timber.d("Permission flow completed")
+            permissionManager.logPermissionStatus()
+            startBikeDetectionServiceIfPermitted()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,8 +62,16 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         observeViewModel()
-        requestPermissions()
         handleIntentAction(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Check permissions on resume (in case user granted them in settings)
+        if (!hasCheckedPermissions) {
+            hasCheckedPermissions = true
+            checkAndRequestPermissions()
+        }
     }
 
     private fun setupUI() {
@@ -242,40 +232,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestPermissions() {
-        requestNotificationPermission()
-        requestLocationPermissions()
-        permissionHelper.requestSmsPermission(this)
-        permissionHelper.requestPhoneAndContactsPermissions(this)
-        permissionHelper.requestCallScreeningRole(this)
-    }
-
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS,
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+    private fun checkAndRequestPermissions() {
+        if (!permissionManager.areAllPermissionsGranted()) {
+            Timber.d("Not all permissions granted, launching permission flow")
+            val intent = PermissionFlowActivity.createIntent(this)
+            permissionFlowLauncher.launch(intent)
+        } else {
+            Timber.d("All permissions already granted")
+            startBikeDetectionServiceIfPermitted()
         }
     }
 
-    private fun requestLocationPermissions() {
-        val permissions =
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            )
-        val allGranted =
-            permissions.all {
-                ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-            }
-        if (allGranted) {
+    private fun startBikeDetectionServiceIfPermitted() {
+        // Check if we have at least location permission to start the service
+        val hasLocationPermission =
+            permissionManager
+                .getPermissionSteps()
+                .filterIsInstance<com.example.bikeridedetection.util.PermissionStep.RuntimePermission>()
+                .filter { it.permissions.contains(android.Manifest.permission.ACCESS_FINE_LOCATION) }
+                .all { permissionManager.isStepGranted(it) }
+
+        if (hasLocationPermission) {
             startBikeDetectionService()
         } else {
-            locationPermissionLauncher.launch(permissions)
+            Timber.w("Location permission not granted, cannot start bike detection service")
+            showPermissionDeniedMessage()
         }
     }
 
@@ -288,7 +269,7 @@ class MainActivity : AppCompatActivity() {
         Snackbar
             .make(
                 binding.root,
-                "Location permission is required for bike detection",
+                R.string.permission_location_required,
                 Snackbar.LENGTH_LONG,
             ).show()
     }
