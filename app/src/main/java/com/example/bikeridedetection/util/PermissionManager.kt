@@ -41,25 +41,29 @@ class PermissionManager
         /**
          * Returns the ordered list of permission steps to request.
          */
-        fun getPermissionSteps(): List<PermissionStep> {
-            val steps = mutableListOf<PermissionStep>()
+        fun getPermissionSteps(): List<PermissionStep> =
+            buildList {
+                add(createLocationPermissionStep())
+                addNotificationPermissionStepIfNeeded(this)
+                add(createSmsPermissionStep())
+                add(createPhoneContactsPermissionStep())
+                addCallScreeningRoleIfNeeded(this)
+            }
 
-            // Step 1: Location permissions (required for bike detection)
-            steps.add(
-                PermissionStep.RuntimePermission(
-                    permissions =
-                        listOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                        ),
-                    rationaleTitle = "Location Permission",
-                    rationaleMessage =
-                        "BikeRide needs location access to detect when you're riding " +
-                            "a bike and automatically enable ride mode.",
-                ),
+        private fun createLocationPermissionStep() =
+            PermissionStep.RuntimePermission(
+                permissions =
+                    listOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                    ),
+                rationaleTitle = "Location Permission",
+                rationaleMessage =
+                    "BikeRide needs location access to detect when you're riding " +
+                        "a bike and automatically enable ride mode.",
             )
 
-            // Step 2: Notification permission (Android 13+)
+        private fun addNotificationPermissionStepIfNeeded(steps: MutableList<PermissionStep>) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 steps.add(
                     PermissionStep.RuntimePermission(
@@ -71,35 +75,32 @@ class PermissionManager
                     ),
                 )
             }
+        }
 
-            // Step 3: SMS permission
-            steps.add(
-                PermissionStep.RuntimePermission(
-                    permissions = listOf(Manifest.permission.SEND_SMS),
-                    rationaleTitle = "SMS Permission",
-                    rationaleMessage =
-                        "BikeRide needs SMS permission to send automatic replies " +
-                            "to callers when you're riding.",
-                ),
+        private fun createSmsPermissionStep() =
+            PermissionStep.RuntimePermission(
+                permissions = listOf(Manifest.permission.SEND_SMS),
+                rationaleTitle = "SMS Permission",
+                rationaleMessage =
+                    "BikeRide needs SMS permission to send automatic replies " +
+                        "to callers when you're riding.",
             )
 
-            // Step 4: Phone and contacts permissions
-            steps.add(
-                PermissionStep.RuntimePermission(
-                    permissions =
-                        listOf(
-                            Manifest.permission.READ_PHONE_STATE,
-                            Manifest.permission.READ_CALL_LOG,
-                            Manifest.permission.READ_CONTACTS,
-                        ),
-                    rationaleTitle = "Phone & Contacts Permission",
-                    rationaleMessage =
-                        "BikeRide needs access to phone state and contacts to " +
-                            "identify incoming calls and manage call screening.",
-                ),
+        private fun createPhoneContactsPermissionStep() =
+            PermissionStep.RuntimePermission(
+                permissions =
+                    listOf(
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.READ_CALL_LOG,
+                        Manifest.permission.READ_CONTACTS,
+                    ),
+                rationaleTitle = "Phone & Contacts Permission",
+                rationaleMessage =
+                    "BikeRide needs access to phone state and contacts to " +
+                        "identify incoming calls and manage call screening.",
             )
 
-            // Step 5: Call screening role (Android 10+)
+        private fun addCallScreeningRoleIfNeeded(steps: MutableList<PermissionStep>) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 steps.add(
                     PermissionStep.RoleRequest(
@@ -111,8 +112,6 @@ class PermissionManager
                     ),
                 )
             }
-
-            return steps
         }
 
         /**

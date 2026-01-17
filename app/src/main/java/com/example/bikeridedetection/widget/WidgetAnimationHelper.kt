@@ -17,6 +17,7 @@ object WidgetAnimationHelper {
     private const val ANIMATION_DURATION_MS = 250L
     private const val ANIMATION_STEPS = 8
     private const val STEP_DELAY_MS = ANIMATION_DURATION_MS / ANIMATION_STEPS
+    private const val COLOR_CHANGE_DELAY_DIVISOR = 3
 
     // Toggle thumb positions in dp
     private const val THUMB_MARGIN_OFF_DP = 2f
@@ -159,7 +160,7 @@ object WidgetAnimationHelper {
             )
 
         // Apply color change with slight delay for visual effect
-        delay(ANIMATION_DURATION_MS / 3)
+        delay(ANIMATION_DURATION_MS / COLOR_CHANGE_DELAY_DIVISOR)
 
         val views = RemoteViews(context.packageName, R.layout.widget_bike_mode)
         views.setInt(R.id.widget_bike_icon, "setColorFilter", targetColor)
