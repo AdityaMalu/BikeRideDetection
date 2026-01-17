@@ -75,6 +75,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        setupToolbar()
+
         binding.switchBikeMode.setOnCheckedChangeListener { view, isChecked ->
             if (!isUpdatingFromViewModel) {
                 // Provide haptic feedback for toggle
@@ -82,9 +84,17 @@ class MainActivity : AppCompatActivity() {
                 viewModel.setBikeModeEnabled(isChecked)
             }
         }
+    }
 
-        binding.settingsButton.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+    private fun setupToolbar() {
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    true
+                }
+                else -> false
+            }
         }
     }
 
