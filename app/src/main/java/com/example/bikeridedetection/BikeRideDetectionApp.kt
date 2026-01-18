@@ -5,24 +5,43 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.example.bikeridedetection.widget.BikeModeWidgetProvider
 import com.example.bikeridedetection.widget.BikeModeWidgetService
+import com.example.bikeridedetection.worker.CallHistoryCleanupWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Application class for BikeRideDetection app.
- * Initializes Hilt dependency injection, Timber logging, and Firebase services.
+ * Initializes Hilt dependency injection, Timber logging, Firebase services, and WorkManager.
  */
 @HiltAndroidApp
-class BikeRideDetectionApp : Application() {
+class BikeRideDetectionApp : Application(), Configuration.Provider {
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() =
+            Configuration
+                .Builder()
+                .setWorkerFactory(workerFactory)
+                .build()
+
     override fun onCreate() {
         super.onCreate()
         initializeTimber()
         initializeFirebase()
         initializeWidgetService()
+        scheduleCallHistoryCleanup()
+    }
+
+    private fun scheduleCallHistoryCleanup() {
+        CallHistoryCleanupWorker.schedule(this)
     }
 
     private fun initializeWidgetService() {

@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_call_history"
+        android:icon="@drawable/ic_call_history"
+        android:title="@string/call_history_title"
+        android:contentDescription="@string/cd_call_history"
+        app:iconTint="?attr/colorOnPrimary"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/cd_settings"

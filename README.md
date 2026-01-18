@@ -39,6 +39,51 @@ A safety-focused Android application that **automatically detects cycling activi
 | 💬 **Auto-Reply SMS** | Sends customizable message to callers: *"I'm riding my bike right now."* |
 | 🔔 **Persistent Notification** | Shows actionable notification to quickly disable bike mode |
 | 🎛️ **Manual Toggle** | Override automatic detection with manual on/off switch |
+| 📋 **Call History** | View missed calls during bike mode with visual distinction for new entries |
+
+### 📋 Call History Visual Distinction
+
+The Call History screen provides clear visual indicators to distinguish between **new (unviewed)** and **previously seen (viewed)** call entries:
+
+| Visual Indicator | Unviewed Entry | Viewed Entry |
+|------------------|----------------|--------------|
+| **Background** | Primary container color | Surface variant (subdued) |
+| **Border** | 2dp primary color border | No border |
+| **Indicator Dot** | Primary color dot on icon | None |
+| **Phone Number** | **Bold** text | Normal weight |
+| **"NEW" Badge** | Primary color badge | None |
+| **Icon Tint** | Primary color | Surface variant |
+
+#### Entry Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Call Rejected During Bike Mode                                │
+│    └─▶ Entry saved with isViewed = false                        │
+│    └─▶ Displays with all visual indicators (NEW badge, border)  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. User Opens Call History Screen                                │
+│    └─▶ Unviewed entries display prominently                     │
+│    └─▶ User can identify new missed calls at a glance           │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. User Navigates Away from Call History                         │
+│    └─▶ All entries marked as viewed (isViewed = true)           │
+│    └─▶ viewedAt timestamp recorded                              │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. Next Visit to Call History                                    │
+│    └─▶ Previously seen entries appear in subdued style          │
+│    └─▶ Only new entries since last visit show indicators        │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -322,6 +367,7 @@ sealed class SmsResult {
 │    └─▶ BikeCallScreeningService intercepts                   │
 │    └─▶ Call is REJECTED                                      │
 │    └─▶ Auto-reply SMS sent to caller                         │
+│    └─▶ Call saved to history (isViewed = false)              │
 └──────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -331,12 +377,31 @@ sealed class SmsResult {
 │    └─▶ Bike Mode auto-disables                               │
 │    └─▶ Calls allowed through normally                        │
 └──────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│ 5. Review Missed Calls                                        │
+│    └─▶ Open Call History from menu                           │
+│    └─▶ New entries show with visual indicators               │
+│    └─▶ Navigate away → entries marked as viewed              │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Manual Control
 
 - **Toggle Switch**: Use the switch in MainActivity to manually enable/disable
 - **Notification Tap**: Tap the persistent notification to quickly disable bike mode
+
+### Reviewing Call History
+
+1. **Access**: Tap the menu icon (⋮) in the top-right corner and select "Call History"
+2. **Identify New Calls**: Unviewed entries display with:
+   - A colored border around the card
+   - A "NEW" badge next to the phone number
+   - Bold phone number text
+   - A colored indicator dot on the contact icon
+3. **Mark as Viewed**: Simply navigate away from the Call History screen - all entries are automatically marked as viewed
+4. **Retention**: Viewed entries are automatically deleted after 24 hours to keep the list manageable
 
 
 ---

@@ -180,6 +180,16 @@ dependencies {
     // DataStore
     implementation libs.datastore.preferences
 
+    // Room Database
+    implementation libs.room.runtime
+    implementation libs.room.ktx
+    ksp libs.room.compiler
+
+    // WorkManager
+    implementation libs.work.runtime.ktx
+    implementation libs.hilt.work
+    ksp libs.hilt.work.compiler
+
     // Logging
     implementation libs.timber
 

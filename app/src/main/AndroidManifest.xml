@@ -68,6 +68,12 @@
             android:exported="false"
             android:theme="@style/Theme.BikeRideDetection" />
 
+        <!-- Call History Activity -->
+        <activity
+            android:name=".ui.activity.CallHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BikeRideDetection" />
+
         <!-- Permission Flow Activity -->
         <activity
             android:name=".ui.activity.PermissionFlowActivity"
