@@ -1,18 +1,25 @@
 package com.example.bikeridedetection.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.DirectionsBike
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.PhoneDisabled
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,7 +37,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -44,6 +54,7 @@ import com.example.bikeridedetection.ui.viewmodel.SettingsViewModel
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToEmergencyContacts: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -92,11 +103,15 @@ fun SettingsScreen(
             onAutoDetectToggled = viewModel::toggleAutoDetect,
             onCallBlockingToggled = viewModel::toggleCallBlocking,
             onSmsAutoReplyToggled = viewModel::toggleSmsAutoReply,
+            onRepeatedCallerToggled = viewModel::toggleRepeatedCaller,
+            onEmergencyContactsToggled = viewModel::toggleEmergencyContacts,
+            onNavigateToEmergencyContacts = onNavigateToEmergencyContacts,
             onSaveSettings = viewModel::saveSettings,
         )
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun SettingsContent(
     modifier: Modifier = Modifier,
@@ -105,6 +120,9 @@ private fun SettingsContent(
     onAutoDetectToggled: (Boolean) -> Unit,
     onCallBlockingToggled: (Boolean) -> Unit,
     onSmsAutoReplyToggled: (Boolean) -> Unit,
+    onRepeatedCallerToggled: (Boolean) -> Unit,
+    onEmergencyContactsToggled: (Boolean) -> Unit,
+    onNavigateToEmergencyContacts: () -> Unit,
     onSaveSettings: () -> Unit,
 ) {
     Column(
@@ -167,6 +185,36 @@ private fun SettingsContent(
             isChecked = uiState.isSmsAutoReplyEnabled,
             onCheckedChange = onSmsAutoReplyToggled,
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Safety Features Section
+        SettingsSectionHeader(title = stringResource(R.string.settings_section_safety))
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SettingsToggleItem(
+            title = stringResource(R.string.settings_emergency_contacts_title),
+            subtitle = stringResource(R.string.settings_emergency_contacts_subtitle),
+            icon = Icons.Default.Shield,
+            isChecked = uiState.isEmergencyContactsEnabled,
+            onCheckedChange = onEmergencyContactsToggled,
+        )
+
+        SettingsNavigationItem(
+            title = stringResource(R.string.settings_manage_emergency_contacts),
+            subtitle = stringResource(R.string.settings_manage_emergency_contacts_subtitle),
+            icon = Icons.Default.Shield,
+            onClick = onNavigateToEmergencyContacts,
+        )
+
+        SettingsToggleItem(
+            title = stringResource(R.string.settings_repeated_caller_title),
+            subtitle = stringResource(R.string.settings_repeated_caller_subtitle),
+            icon = Icons.Default.Repeat,
+            isChecked = uiState.isRepeatedCallerEnabled,
+            onCheckedChange = onRepeatedCallerToggled,
+        )
     }
 }
 
@@ -178,4 +226,61 @@ private fun SettingsSectionHeader(title: String) {
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.semantics { heading() },
     )
+}
+
+/**
+ * A settings navigation item with icon, title, subtitle, and arrow.
+ */
+@Composable
+private fun SettingsNavigationItem(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }

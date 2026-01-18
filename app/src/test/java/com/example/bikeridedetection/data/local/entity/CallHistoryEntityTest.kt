@@ -10,15 +10,16 @@ import org.junit.Test
 class CallHistoryEntityTest {
     @Test
     fun `toDomainModel_allFieldsPopulated_mapsCorrectly`() {
-        val entity = CallHistoryEntity(
-            id = 1,
-            phoneNumber = "+1234567890",
-            timestamp = 1000L,
-            isFromContact = true,
-            autoReplyMessage = "Test message",
-            isViewed = true,
-            viewedAt = 2000L,
-        )
+        val entity =
+            CallHistoryEntity(
+                id = 1,
+                phoneNumber = "+1234567890",
+                timestamp = 1000L,
+                isFromContact = true,
+                autoReplyMessage = "Test message",
+                isViewed = true,
+                viewedAt = 2000L,
+            )
 
         val domainModel = entity.toDomainModel()
 
@@ -33,12 +34,13 @@ class CallHistoryEntityTest {
 
     @Test
     fun `toDomainModel_defaultValues_mapsCorrectly`() {
-        val entity = CallHistoryEntity(
-            phoneNumber = "+1234567890",
-            timestamp = 1000L,
-            isFromContact = false,
-            autoReplyMessage = "Test message",
-        )
+        val entity =
+            CallHistoryEntity(
+                phoneNumber = "+1234567890",
+                timestamp = 1000L,
+                isFromContact = false,
+                autoReplyMessage = "Test message",
+            )
 
         val domainModel = entity.toDomainModel()
 
@@ -49,15 +51,16 @@ class CallHistoryEntityTest {
 
     @Test
     fun `toDomainModel_viewedAtNull_mapsToNull`() {
-        val entity = CallHistoryEntity(
-            id = 1,
-            phoneNumber = "+1234567890",
-            timestamp = 1000L,
-            isFromContact = false,
-            autoReplyMessage = "Test message",
-            isViewed = false,
-            viewedAt = null,
-        )
+        val entity =
+            CallHistoryEntity(
+                id = 1,
+                phoneNumber = "+1234567890",
+                timestamp = 1000L,
+                isFromContact = false,
+                autoReplyMessage = "Test message",
+                isViewed = false,
+                viewedAt = null,
+            )
 
         val domainModel = entity.toDomainModel()
 
@@ -66,15 +69,16 @@ class CallHistoryEntityTest {
 
     @Test
     fun `fromDomainModel_allFieldsPopulated_mapsCorrectly`() {
-        val entry = CallHistoryEntry(
-            id = 1,
-            phoneNumber = "+1234567890",
-            timestamp = 1000L,
-            isFromContact = true,
-            autoReplyMessage = "Test message",
-            isViewed = true,
-            viewedAt = 2000L,
-        )
+        val entry =
+            CallHistoryEntry(
+                id = 1,
+                phoneNumber = "+1234567890",
+                timestamp = 1000L,
+                isFromContact = true,
+                autoReplyMessage = "Test message",
+                isViewed = true,
+                viewedAt = 2000L,
+            )
 
         val entity = CallHistoryEntity.fromDomainModel(entry)
 
@@ -89,11 +93,12 @@ class CallHistoryEntityTest {
 
     @Test
     fun `fromDomainModel_defaultValues_mapsCorrectly`() {
-        val entry = CallHistoryEntry(
-            phoneNumber = "+1234567890",
-            timestamp = 1000L,
-            autoReplyMessage = "Test message",
-        )
+        val entry =
+            CallHistoryEntry(
+                phoneNumber = "+1234567890",
+                timestamp = 1000L,
+                autoReplyMessage = "Test message",
+            )
 
         val entity = CallHistoryEntity.fromDomainModel(entry)
 
@@ -105,15 +110,16 @@ class CallHistoryEntityTest {
 
     @Test
     fun `roundTrip_entityToDomainAndBack_preservesAllFields`() {
-        val originalEntity = CallHistoryEntity(
-            id = 5,
-            phoneNumber = "+9876543210",
-            timestamp = 5000L,
-            isFromContact = true,
-            autoReplyMessage = "Round trip message",
-            isViewed = true,
-            viewedAt = 6000L,
-        )
+        val originalEntity =
+            CallHistoryEntity(
+                id = 5,
+                phoneNumber = "+9876543210",
+                timestamp = 5000L,
+                isFromContact = true,
+                autoReplyMessage = "Round trip message",
+                isViewed = true,
+                viewedAt = 6000L,
+            )
 
         val domainModel = originalEntity.toDomainModel()
         val resultEntity = CallHistoryEntity.fromDomainModel(domainModel)
@@ -123,15 +129,16 @@ class CallHistoryEntityTest {
 
     @Test
     fun `roundTrip_domainToEntityAndBack_preservesAllFields`() {
-        val originalEntry = CallHistoryEntry(
-            id = 5,
-            phoneNumber = "+9876543210",
-            timestamp = 5000L,
-            isFromContact = true,
-            autoReplyMessage = "Round trip message",
-            isViewed = true,
-            viewedAt = 6000L,
-        )
+        val originalEntry =
+            CallHistoryEntry(
+                id = 5,
+                phoneNumber = "+9876543210",
+                timestamp = 5000L,
+                isFromContact = true,
+                autoReplyMessage = "Round trip message",
+                isViewed = true,
+                viewedAt = 6000L,
+            )
 
         val entity = CallHistoryEntity.fromDomainModel(originalEntry)
         val resultEntry = entity.toDomainModel()
@@ -141,11 +148,12 @@ class CallHistoryEntityTest {
 
     @Test
     fun `fromDomainModel_emptyPhoneNumber_mapsCorrectly`() {
-        val entry = CallHistoryEntry(
-            phoneNumber = "",
-            timestamp = 1000L,
-            autoReplyMessage = "Test message",
-        )
+        val entry =
+            CallHistoryEntry(
+                phoneNumber = "",
+                timestamp = 1000L,
+                autoReplyMessage = "Test message",
+            )
 
         val entity = CallHistoryEntity.fromDomainModel(entry)
 
@@ -155,15 +163,15 @@ class CallHistoryEntityTest {
     @Test
     fun `fromDomainModel_longAutoReplyMessage_mapsCorrectly`() {
         val longMessage = "A".repeat(1000)
-        val entry = CallHistoryEntry(
-            phoneNumber = "+1234567890",
-            timestamp = 1000L,
-            autoReplyMessage = longMessage,
-        )
+        val entry =
+            CallHistoryEntry(
+                phoneNumber = "+1234567890",
+                timestamp = 1000L,
+                autoReplyMessage = longMessage,
+            )
 
         val entity = CallHistoryEntity.fromDomainModel(entry)
 
         assertEquals(longMessage, entity.autoReplyMessage)
     }
 }
-

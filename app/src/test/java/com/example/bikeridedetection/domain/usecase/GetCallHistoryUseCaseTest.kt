@@ -36,22 +36,23 @@ class GetCallHistoryUseCaseTest {
     @Test
     fun `invoke_withEntries_returnsAllEntries`() =
         runTest {
-            val entries = listOf(
-                CallHistoryEntry(
-                    id = 1,
-                    phoneNumber = "+1234567890",
-                    timestamp = 1000L,
-                    isFromContact = true,
-                    autoReplyMessage = "Test message",
-                ),
-                CallHistoryEntry(
-                    id = 2,
-                    phoneNumber = "+0987654321",
-                    timestamp = 2000L,
-                    isFromContact = false,
-                    autoReplyMessage = "Another message",
-                ),
-            )
+            val entries =
+                listOf(
+                    CallHistoryEntry(
+                        id = 1,
+                        phoneNumber = "+1234567890",
+                        timestamp = 1000L,
+                        isFromContact = true,
+                        autoReplyMessage = "Test message",
+                    ),
+                    CallHistoryEntry(
+                        id = 2,
+                        phoneNumber = "+0987654321",
+                        timestamp = 2000L,
+                        isFromContact = false,
+                        autoReplyMessage = "Another message",
+                    ),
+                )
             every { repository.getAllEntries() } returns flowOf(entries)
 
             useCase().test {
@@ -64,22 +65,25 @@ class GetCallHistoryUseCaseTest {
     @Test
     fun `invoke_multipleEmissions_emitsAllUpdates`() =
         runTest {
-            val entries1 = listOf(
-                CallHistoryEntry(
-                    id = 1,
-                    phoneNumber = "+1234567890",
-                    timestamp = 1000L,
-                    isFromContact = true,
-                    autoReplyMessage = "Test message",
-                ),
-            )
-            val entries2 = entries1 + CallHistoryEntry(
-                id = 2,
-                phoneNumber = "+0987654321",
-                timestamp = 2000L,
-                isFromContact = false,
-                autoReplyMessage = "Another message",
-            )
+            val entries1 =
+                listOf(
+                    CallHistoryEntry(
+                        id = 1,
+                        phoneNumber = "+1234567890",
+                        timestamp = 1000L,
+                        isFromContact = true,
+                        autoReplyMessage = "Test message",
+                    ),
+                )
+            val entries2 =
+                entries1 +
+                    CallHistoryEntry(
+                        id = 2,
+                        phoneNumber = "+0987654321",
+                        timestamp = 2000L,
+                        isFromContact = false,
+                        autoReplyMessage = "Another message",
+                    )
             every { repository.getAllEntries() } returns flowOf(entries1, entries2)
 
             useCase().test {
@@ -125,4 +129,3 @@ class GetCallHistoryUseCaseTest {
             }
         }
 }
-

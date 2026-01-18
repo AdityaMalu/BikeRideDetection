@@ -2,7 +2,10 @@ package com.example.bikeridedetection.service
 
 import android.telecom.Call
 import android.telecom.CallScreeningService
+import com.example.bikeridedetection.domain.usecase.AllowNextCallUseCase
+import com.example.bikeridedetection.domain.usecase.CheckRepeatedCallerUseCase
 import com.example.bikeridedetection.domain.usecase.GetBikeModeUseCase
+import com.example.bikeridedetection.domain.usecase.IsEmergencyContactUseCase
 import com.example.bikeridedetection.domain.usecase.SaveCallHistoryUseCase
 import com.example.bikeridedetection.domain.usecase.SendAutoReplyUseCase
 import com.example.bikeridedetection.util.ContactsHelper
@@ -21,6 +24,12 @@ import javax.inject.Inject
 /**
  * Call screening service that rejects calls when bike mode is enabled.
  * Sends an auto-reply SMS to the caller and saves the call to history.
+ *
+ * Calls are allowed through if:
+ * - Bike mode is disabled
+ * - The caller is an emergency contact
+ * - The caller has called multiple times recently (repeated caller detection)
+ * - The user has enabled "allow next call" from the notification
  */
 @AndroidEntryPoint
 class BikeCallScreeningService : CallScreeningService() {
@@ -35,6 +44,15 @@ class BikeCallScreeningService : CallScreeningService() {
 
     @Inject
     lateinit var contactsHelper: ContactsHelper
+
+    @Inject
+    lateinit var isEmergencyContactUseCase: IsEmergencyContactUseCase
+
+    @Inject
+    lateinit var checkRepeatedCallerUseCase: CheckRepeatedCallerUseCase
+
+    @Inject
+    lateinit var allowNextCallUseCase: AllowNextCallUseCase
 
     private val exceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
@@ -65,18 +83,34 @@ class BikeCallScreeningService : CallScreeningService() {
 
                 Timber.d("Incoming call: $phoneNumber | BikeMode=${bikeMode.isEnabled}")
 
-                if (bikeMode.isEnabled) {
-                    rejectCall(callDetails)
-                    phoneNumber?.let { number ->
-                        // Use NonCancellable to ensure these operations complete
-                        // even if the service is destroyed
-                        withContext(NonCancellable) {
-                            sendAutoReply(number)
-                            saveCallHistory(number, bikeMode.autoReplyMessage)
-                        }
-                    }
-                } else {
+                if (!bikeMode.isEnabled) {
                     allowCall(callDetails)
+                    return@launch
+                }
+
+                // Check bypass conditions
+                val bypassReason = phoneNumber?.let { checkBypassConditions(it) }
+
+                if (bypassReason != null) {
+                    Timber.d("Allowing call due to: $bypassReason")
+                    allowCall(callDetails)
+                    // Clear repeated caller tracking since call was allowed
+                    phoneNumber?.let { checkRepeatedCallerUseCase.clearForNumber(it) }
+                    return@launch
+                }
+
+                // Reject the call
+                rejectCall(callDetails)
+                phoneNumber?.let { number ->
+                    // Record this rejection for repeated caller detection
+                    checkRepeatedCallerUseCase.recordRejectedCall(number)
+
+                    // Use NonCancellable to ensure these operations complete
+                    // even if the service is destroyed
+                    withContext(NonCancellable) {
+                        sendAutoReply(number)
+                        saveCallHistory(number, bikeMode.autoReplyMessage)
+                    }
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error in onScreenCall")
@@ -85,6 +119,21 @@ class BikeCallScreeningService : CallScreeningService() {
             }
         }
     }
+
+    /**
+     * Checks if the call should bypass blocking.
+     *
+     * @param phoneNumber The phone number to check
+     * @return The reason for bypassing, or null if the call should be blocked
+     */
+    @Suppress("ReturnCount")
+    private suspend fun checkBypassConditions(phoneNumber: String): String? =
+        when {
+            allowNextCallUseCase.consumeIfEnabled() -> "Allow next call enabled"
+            isEmergencyContactUseCase(phoneNumber) -> "Emergency contact"
+            checkRepeatedCallerUseCase(phoneNumber) -> "Repeated caller"
+            else -> null
+        }
 
     private fun rejectCall(callDetails: Call.Details) {
         val response =

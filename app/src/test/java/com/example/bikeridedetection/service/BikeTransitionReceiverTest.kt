@@ -39,4 +39,3 @@ class BikeTransitionReceiverTest {
         assert(BikeTransitionReceiver.ACTION_BIKE_MODE_CHANGED.contains("bikeridedetection"))
     }
 }
-

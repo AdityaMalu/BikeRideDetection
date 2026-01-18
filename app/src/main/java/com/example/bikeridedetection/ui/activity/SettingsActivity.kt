@@ -1,5 +1,6 @@
 package com.example.bikeridedetection.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +23,11 @@ class SettingsActivity : AppCompatActivity() {
             BikeRideDetectionTheme {
                 SettingsScreen(
                     onNavigateBack = { finish() },
+                    onNavigateToEmergencyContacts = {
+                        startActivity(
+                            Intent(this, EmergencyContactsActivity::class.java),
+                        )
+                    },
                 )
             }
         }

@@ -20,4 +20,3 @@ data class CallHistoryEntry(
     val isViewed: Boolean = false,
     val viewedAt: Long? = null,
 )
-

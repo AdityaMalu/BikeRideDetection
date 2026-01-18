@@ -77,4 +77,3 @@ interface CallHistoryDao {
     @Query("SELECT * FROM call_history WHERE id = :id")
     suspend fun getEntryById(id: Long): CallHistoryEntity?
 }
-

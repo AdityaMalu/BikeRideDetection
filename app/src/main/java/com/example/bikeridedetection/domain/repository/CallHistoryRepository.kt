@@ -61,4 +61,3 @@ interface CallHistoryRepository {
         const val RETENTION_PERIOD_MILLIS = 24 * 60 * 60 * 1000L
     }
 }
-

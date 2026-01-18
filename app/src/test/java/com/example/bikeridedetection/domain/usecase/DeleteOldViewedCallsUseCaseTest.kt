@@ -60,4 +60,3 @@ class DeleteOldViewedCallsUseCaseTest {
             assertEquals(100, result)
         }
 }
-

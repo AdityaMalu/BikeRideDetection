@@ -12,11 +12,10 @@ class DeleteOldViewedCallsUseCase
     constructor(
         private val repository: CallHistoryRepository,
     ) {
-    /**
-     * Deletes entries that have been viewed for more than 48 hours.
-     *
-     * @return The number of deleted entries
-     */
-    suspend operator fun invoke(): Int = repository.deleteOldViewedEntries()
-}
-
+        /**
+         * Deletes entries that have been viewed for more than 48 hours.
+         *
+         * @return The number of deleted entries
+         */
+        suspend operator fun invoke(): Int = repository.deleteOldViewedEntries()
+    }

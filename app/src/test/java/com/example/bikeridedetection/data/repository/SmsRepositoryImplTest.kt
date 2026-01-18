@@ -175,4 +175,3 @@ class SmsRepositoryImplTest {
             assertEquals(phoneNumber, (result as SmsResult.Sent).phoneNumber)
         }
 }
-

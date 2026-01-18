@@ -172,7 +172,9 @@ class ResultTest {
     @Test
     fun `runCatching_success_returnsSuccess`() =
         runTest {
-            val result = com.example.bikeridedetection.domain.model.runCatching { "success" }
+            val result =
+                com.example.bikeridedetection.domain.model
+                    .runCatching { "success" }
 
             assertTrue(result is Result.Success<String>)
             assertEquals("success", (result as Result.Success<String>).data)
@@ -182,10 +184,11 @@ class ResultTest {
     fun `runCatching_exception_returnsError`() =
         runTest {
             val exception = RuntimeException("test error")
-            val result: Result<String> = com.example.bikeridedetection.domain.model.runCatching { throw exception }
+            val result: Result<String> =
+                com.example.bikeridedetection.domain.model
+                    .runCatching { throw exception }
 
             assertTrue(result is Result.Error)
             assertEquals(exception, (result as Result.Error).error)
         }
 }
-

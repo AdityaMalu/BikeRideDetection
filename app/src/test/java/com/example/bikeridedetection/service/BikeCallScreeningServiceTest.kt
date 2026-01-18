@@ -129,4 +129,3 @@ class BikeCallScreeningServiceTest {
         assertEquals("+1:234:567", result)
     }
 }
-
