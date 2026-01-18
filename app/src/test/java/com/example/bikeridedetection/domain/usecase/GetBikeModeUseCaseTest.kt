@@ -67,4 +67,3 @@ class GetBikeModeUseCaseTest {
             assertEquals(BikeMode.DEFAULT_AUTO_REPLY, result.autoReplyMessage)
         }
 }
-

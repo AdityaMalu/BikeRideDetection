@@ -39,4 +39,3 @@ class CallHistoryActivity : AppCompatActivity() {
         fun createIntent(context: Context): Intent = Intent(context, CallHistoryActivity::class.java)
     }
 }
-

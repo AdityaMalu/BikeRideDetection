@@ -29,11 +29,12 @@ class SaveCallHistoryUseCaseTest {
             val entrySlot = slot<CallHistoryEntry>()
             coEvery { repository.saveEntry(capture(entrySlot)) } returns 1L
 
-            val result = useCase(
-                phoneNumber = "+1234567890",
-                isFromContact = true,
-                autoReplyMessage = "Test message",
-            )
+            val result =
+                useCase(
+                    phoneNumber = "+1234567890",
+                    isFromContact = true,
+                    autoReplyMessage = "Test message",
+                )
 
             assertEquals(1L, result)
             coVerify { repository.saveEntry(any()) }
@@ -148,4 +149,3 @@ class SaveCallHistoryUseCaseTest {
             assertFalse(entrySlot.captured.isViewed)
         }
 }
-

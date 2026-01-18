@@ -94,7 +94,9 @@ class UpdateAutoReplyUseCaseTest {
     @Test
     fun `invoke_longMessage_savesAndReturnsTrue`() =
         runTest {
-            val message = "This is a very long auto-reply message that explains in detail why I cannot answer the phone right now because I am currently riding my bicycle."
+            val message =
+                "This is a very long auto-reply message that explains in detail " +
+                    "why I cannot answer the phone right now because I am currently riding my bicycle."
             coEvery { repository.setAutoReplyMessage(message) } returns Unit
 
             val result = useCase(message)
@@ -103,4 +105,3 @@ class UpdateAutoReplyUseCaseTest {
             coVerify { repository.setAutoReplyMessage(message) }
         }
 }
-

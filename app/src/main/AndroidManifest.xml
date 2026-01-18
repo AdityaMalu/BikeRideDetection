@@ -80,9 +80,25 @@
             android:exported="false"
             android:theme="@style/Theme.BikeRideDetection" />
 
+        <!-- Emergency Contacts Activity -->
+        <activity
+            android:name=".ui.activity.EmergencyContactsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BikeRideDetection" />
+
         <receiver
             android:name=".service.BikeTransitionReceiver"
             android:exported="false" />
+
+        <!-- Notification Action Receiver -->
+        <receiver
+            android:name=".service.NotificationActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.bikeridedetection.ACTION_END_RIDE" />
+                <action android:name="com.example.bikeridedetection.ACTION_ALLOW_NEXT_CALL" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".service.BikeDetectionService"

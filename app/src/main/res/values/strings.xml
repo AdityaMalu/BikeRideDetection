@@ -121,4 +121,37 @@
     <string name="widget_toggle_off">Turn Off</string>
     <string name="widget_calls_blocked">Calls will be blocked</string>
     <string name="cd_widget_toggle">Toggle bike mode on or off</string>
+
+    <!-- Emergency Contacts -->
+    <string name="emergency_contacts_title">Emergency Contacts</string>
+    <string name="emergency_contacts_empty">No emergency contacts</string>
+    <string name="emergency_contacts_empty_hint">Add contacts who can always reach you during bike mode</string>
+    <string name="emergency_contacts_add">Add contact</string>
+    <string name="emergency_contacts_add_title">Add Emergency Contact</string>
+    <string name="emergency_contacts_add_description">This contact will be able to call you even when bike mode is active.</string>
+    <string name="emergency_contacts_name_label">Name</string>
+    <string name="emergency_contacts_phone_label">Phone number</string>
+    <string name="emergency_contacts_add_confirm">Add</string>
+    <string name="emergency_contacts_cancel">Cancel</string>
+    <string name="emergency_contacts_delete">Delete contact</string>
+    <string name="emergency_contacts_delete_title">Remove Contact?</string>
+    <string name="emergency_contacts_delete_message">Remove %1$s from emergency contacts? They will no longer be able to bypass call blocking.</string>
+    <string name="emergency_contacts_delete_confirm">Remove</string>
+
+    <!-- Settings - Safety Section -->
+    <string name="settings_section_safety">Safety Features</string>
+    <string name="settings_emergency_contacts_title">Emergency Contact Bypass</string>
+    <string name="settings_emergency_contacts_subtitle">Allow emergency contacts to call through</string>
+    <string name="settings_manage_emergency_contacts">Manage Emergency Contacts</string>
+    <string name="settings_manage_emergency_contacts_subtitle">Add or remove contacts who can bypass blocking</string>
+    <string name="settings_repeated_caller_title">Repeated Caller Detection</string>
+    <string name="settings_repeated_caller_subtitle">Allow calls if same number calls 3 times in 5 minutes</string>
+
+    <!-- Notification Actions -->
+    <string name="notification_action_end_ride">End Ride</string>
+    <string name="notification_action_allow_next">Allow Next</string>
+    <string name="notification_action_view_missed">View Missed</string>
+    <string name="notification_active_expanded_text">Calls are being blocked. Tap an action below for quick controls.</string>
+    <string name="notification_toast_ride_ended">Bike mode ended</string>
+    <string name="notification_toast_next_call_allowed">Next call will be allowed through</string>
 </resources>

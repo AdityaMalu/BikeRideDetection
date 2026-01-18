@@ -54,26 +54,34 @@
     <color name="status_active_background">#E8F5E9</color>
     <color name="status_inactive_background">#F5F5F5</color>
 
-    <!-- Card Colors -->
+    <!-- Card Colors - Material Design 3 -->
     <color name="card_background">#FFFFFF</color>
     <color name="card_stroke">#E0E0E0</color>
 
-    <!-- Feature Card Colors -->
+    <!-- Hero Card - Subtle surface tint -->
+    <color name="card_hero_background">#F8FBF8</color>
+    <color name="card_hero_stroke">#C8E6C9</color>
+
+    <!-- Feature Card Colors - Soft, muted tones -->
+    <color name="card_feature_calls_background">#F5F9FF</color>
+    <color name="card_feature_sms_background">#FFFAF5</color>
+    <color name="card_feature_stroke">#E8E8E8</color>
+
+    <!-- Safety Card - Subtle green tint -->
+    <color name="card_safety_background">#F1F8F2</color>
+    <color name="card_safety_stroke">#A5D6A7</color>
+
+    <!-- Legacy Feature Card Colors (kept for compatibility) -->
     <color name="feature_calls_background">#E3F2FD</color>
     <color name="feature_sms_background">#FFF3E0</color>
     <color name="feature_notification_background">#F3E5F5</color>
 
-    <!-- Glassmorphism Colors - Light Mode -->
-    <!-- Semi-transparent backgrounds with alpha for blur effect -->
-    <color name="glass_hero_background">#E6FFFFFF</color> <!-- 90% white -->
-    <color name="glass_feature_calls_background">#D9E3F2FD</color> <!-- 85% light blue -->
-    <color name="glass_feature_sms_background">#D9FFF3E0</color> <!-- 85% light orange -->
-    <color name="glass_safety_background">#E6A5D6A7</color> <!-- 90% light green -->
-
-    <!-- Glassmorphism borders with subtle opacity -->
-    <color name="glass_border_light">#33FFFFFF</color> <!-- 20% white -->
-    <color name="glass_border_accent">#4D2E7D32</color> <!-- 30% primary green -->
-
-    <!-- Shadow colors for depth -->
-    <color name="glass_shadow_light">#1A000000</color> <!-- 10% black -->
+    <!-- Glassmorphism Colors - Light Mode (legacy) -->
+    <color name="glass_hero_background">#E6FFFFFF</color>
+    <color name="glass_feature_calls_background">#D9E3F2FD</color>
+    <color name="glass_feature_sms_background">#D9FFF3E0</color>
+    <color name="glass_safety_background">#E6A5D6A7</color>
+    <color name="glass_border_light">#33FFFFFF</color>
+    <color name="glass_border_accent">#4D2E7D32</color>
+    <color name="glass_shadow_light">#1A000000</color>
 </resources>

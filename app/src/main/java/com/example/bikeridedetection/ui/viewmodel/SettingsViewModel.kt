@@ -2,6 +2,7 @@ package com.example.bikeridedetection.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bikeridedetection.data.datasource.BikeModeDataStore
 import com.example.bikeridedetection.domain.model.BikeMode
 import com.example.bikeridedetection.domain.usecase.ObserveBikeModeUseCase
 import com.example.bikeridedetection.domain.usecase.UpdateAutoReplyUseCase
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -26,6 +28,8 @@ data class SettingsUiState(
     val isAutoDetectEnabled: Boolean = true,
     val isCallBlockingEnabled: Boolean = true,
     val isSmsAutoReplyEnabled: Boolean = true,
+    val isEmergencyContactsEnabled: Boolean = true,
+    val isRepeatedCallerEnabled: Boolean = true,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
     val errorMessage: String? = null,
@@ -41,6 +45,7 @@ class SettingsViewModel
     constructor(
         private val observeBikeModeUseCase: ObserveBikeModeUseCase,
         private val updateAutoReplyUseCase: UpdateAutoReplyUseCase,
+        private val bikeModeDataStore: BikeModeDataStore,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SettingsUiState())
         val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -50,17 +55,24 @@ class SettingsViewModel
         }
 
         private fun observeSettings() {
-            observeBikeModeUseCase()
-                .onEach { bikeMode ->
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            autoReplyMessage = bikeMode.autoReplyMessage,
-                        )
-                    }
-                }.catch { e ->
-                    Timber.e(e, "Error observing settings")
-                    _uiState.update { it.copy(errorMessage = "Failed to load settings") }
-                }.launchIn(viewModelScope)
+            combine(
+                observeBikeModeUseCase(),
+                bikeModeDataStore.observeRepeatedCallerConfig(),
+                bikeModeDataStore.observeEmergencyContactsEnabled(),
+            ) { bikeMode, repeatedCallerConfig, emergencyContactsEnabled ->
+                Triple(bikeMode, repeatedCallerConfig, emergencyContactsEnabled)
+            }.onEach { (bikeMode, repeatedCallerConfig, emergencyContactsEnabled) ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        autoReplyMessage = bikeMode.autoReplyMessage,
+                        isRepeatedCallerEnabled = repeatedCallerConfig.isEnabled,
+                        isEmergencyContactsEnabled = emergencyContactsEnabled,
+                    )
+                }
+            }.catch { e ->
+                Timber.e(e, "Error observing settings")
+                _uiState.update { it.copy(errorMessage = "Failed to load settings") }
+            }.launchIn(viewModelScope)
         }
 
         /**
@@ -146,6 +158,36 @@ class SettingsViewModel
          */
         fun toggleSmsAutoReply(enabled: Boolean) {
             _uiState.update { it.copy(isSmsAutoReplyEnabled = enabled) }
+        }
+
+        /**
+         * Toggles repeated caller detection feature.
+         */
+        fun toggleRepeatedCaller(enabled: Boolean) {
+            viewModelScope.launch {
+                try {
+                    bikeModeDataStore.setRepeatedCallerEnabled(enabled)
+                    Timber.d("Repeated caller detection set to: $enabled")
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to toggle repeated caller detection")
+                    _uiState.update { it.copy(errorMessage = "Failed to update setting") }
+                }
+            }
+        }
+
+        /**
+         * Toggles emergency contacts bypass feature.
+         */
+        fun toggleEmergencyContacts(enabled: Boolean) {
+            viewModelScope.launch {
+                try {
+                    bikeModeDataStore.setEmergencyContactsEnabled(enabled)
+                    Timber.d("Emergency contacts bypass set to: $enabled")
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to toggle emergency contacts")
+                    _uiState.update { it.copy(errorMessage = "Failed to update setting") }
+                }
+            }
         }
 
         /**

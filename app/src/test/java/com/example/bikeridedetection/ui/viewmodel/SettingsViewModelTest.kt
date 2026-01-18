@@ -1,6 +1,8 @@
 package com.example.bikeridedetection.ui.viewmodel
 
+import com.example.bikeridedetection.data.datasource.BikeModeDataStore
 import com.example.bikeridedetection.domain.model.BikeMode
+import com.example.bikeridedetection.domain.model.RepeatedCallerConfig
 import com.example.bikeridedetection.domain.usecase.ObserveBikeModeUseCase
 import com.example.bikeridedetection.domain.usecase.UpdateAutoReplyUseCase
 import io.mockk.coEvery
@@ -28,6 +30,7 @@ class SettingsViewModelTest {
 
     private lateinit var observeBikeModeUseCase: ObserveBikeModeUseCase
     private lateinit var updateAutoReplyUseCase: UpdateAutoReplyUseCase
+    private lateinit var bikeModeDataStore: BikeModeDataStore
     private lateinit var viewModel: SettingsViewModel
 
     @Before
@@ -35,6 +38,7 @@ class SettingsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         observeBikeModeUseCase = mockk()
         updateAutoReplyUseCase = mockk()
+        bikeModeDataStore = mockk(relaxed = true)
     }
 
     @After
@@ -44,7 +48,9 @@ class SettingsViewModelTest {
 
     private fun createViewModel(): SettingsViewModel {
         every { observeBikeModeUseCase() } returns flowOf(BikeMode(isEnabled = false))
-        return SettingsViewModel(observeBikeModeUseCase, updateAutoReplyUseCase)
+        every { bikeModeDataStore.observeRepeatedCallerConfig() } returns flowOf(RepeatedCallerConfig())
+        every { bikeModeDataStore.observeEmergencyContactsEnabled() } returns flowOf(true)
+        return SettingsViewModel(observeBikeModeUseCase, updateAutoReplyUseCase, bikeModeDataStore)
     }
 
     @Test

@@ -21,7 +21,9 @@ import javax.inject.Inject
  * Initializes Hilt dependency injection, Timber logging, Firebase services, and WorkManager.
  */
 @HiltAndroidApp
-class BikeRideDetectionApp : Application(), Configuration.Provider {
+class BikeRideDetectionApp :
+    Application(),
+    Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 

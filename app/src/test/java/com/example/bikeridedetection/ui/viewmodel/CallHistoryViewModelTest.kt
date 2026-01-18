@@ -67,37 +67,49 @@ class CallHistoryViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertFalse(viewModel.uiState.value.isLoading)
-            assertTrue(viewModel.uiState.value.entries.isEmpty())
+            assertTrue(
+                viewModel.uiState.value.entries
+                    .isEmpty(),
+            )
             assertNull(viewModel.uiState.value.errorMessage)
         }
 
     @Test
     fun `observeCallHistory_withEntries_updatesStateWithEntries`() =
         runTest {
-            val entries = listOf(
-                CallHistoryEntry(
-                    id = 1,
-                    phoneNumber = "+1234567890",
-                    timestamp = 1000L,
-                    isFromContact = true,
-                    autoReplyMessage = "Test message",
-                ),
-                CallHistoryEntry(
-                    id = 2,
-                    phoneNumber = "+0987654321",
-                    timestamp = 2000L,
-                    isFromContact = false,
-                    autoReplyMessage = "Another message",
-                ),
-            )
+            val entries =
+                listOf(
+                    CallHistoryEntry(
+                        id = 1,
+                        phoneNumber = "+1234567890",
+                        timestamp = 1000L,
+                        isFromContact = true,
+                        autoReplyMessage = "Test message",
+                    ),
+                    CallHistoryEntry(
+                        id = 2,
+                        phoneNumber = "+0987654321",
+                        timestamp = 2000L,
+                        isFromContact = false,
+                        autoReplyMessage = "Another message",
+                    ),
+                )
             every { getCallHistoryUseCase() } returns flowOf(entries)
 
             viewModel = CallHistoryViewModel(getCallHistoryUseCase, markCallsAsViewedUseCase)
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertEquals(2, viewModel.uiState.value.entries.size)
-            assertEquals("+1234567890", viewModel.uiState.value.entries[0].phoneNumber)
-            assertEquals("+0987654321", viewModel.uiState.value.entries[1].phoneNumber)
+            assertEquals(
+                "+1234567890",
+                viewModel.uiState.value.entries[0]
+                    .phoneNumber,
+            )
+            assertEquals(
+                "+0987654321",
+                viewModel.uiState.value.entries[1]
+                    .phoneNumber,
+            )
         }
 
     @Test
@@ -155,15 +167,16 @@ class CallHistoryViewModelTest {
     @Test
     fun `observeCallHistory_multipleEmissions_updatesState`() =
         runTest {
-            val entries1 = listOf(
-                CallHistoryEntry(
-                    id = 1,
-                    phoneNumber = "+1234567890",
-                    timestamp = 1000L,
-                    isFromContact = true,
-                    autoReplyMessage = "Test message",
-                ),
-            )
+            val entries1 =
+                listOf(
+                    CallHistoryEntry(
+                        id = 1,
+                        phoneNumber = "+1234567890",
+                        timestamp = 1000L,
+                        isFromContact = true,
+                        autoReplyMessage = "Test message",
+                    ),
+                )
             every { getCallHistoryUseCase() } returns flowOf(entries1)
 
             viewModel = CallHistoryViewModel(getCallHistoryUseCase, markCallsAsViewedUseCase)
@@ -172,4 +185,3 @@ class CallHistoryViewModelTest {
             assertEquals(1, viewModel.uiState.value.entries.size)
         }
 }
-

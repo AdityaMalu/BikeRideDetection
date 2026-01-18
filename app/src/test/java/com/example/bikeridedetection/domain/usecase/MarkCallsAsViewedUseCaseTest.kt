@@ -40,4 +40,3 @@ class MarkCallsAsViewedUseCaseTest {
             coVerify(exactly = 3) { repository.markAllAsViewed() }
         }
 }
-

@@ -11,11 +11,10 @@ class MarkCallsAsViewedUseCase
     constructor(
         private val repository: CallHistoryRepository,
     ) {
-    /**
-     * Marks all unviewed entries as viewed with the current timestamp.
-     */
-    suspend operator fun invoke() {
-        repository.markAllAsViewed()
+        /**
+         * Marks all unviewed entries as viewed with the current timestamp.
+         */
+        suspend operator fun invoke() {
+            repository.markAllAsViewed()
+        }
     }
-}
-

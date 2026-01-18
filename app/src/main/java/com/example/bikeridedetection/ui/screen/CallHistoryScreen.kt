@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PhoneMissed
-import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material3.Card
@@ -310,4 +309,3 @@ private fun formatTimestamp(timestamp: Long): String {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
     return dateFormat.format(Date(timestamp))
 }
-

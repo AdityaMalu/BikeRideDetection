@@ -37,58 +37,57 @@ class CallHistoryViewModel
         private val getCallHistoryUseCase: GetCallHistoryUseCase,
         private val markCallsAsViewedUseCase: MarkCallsAsViewedUseCase,
     ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CallHistoryUiState())
-    val uiState: StateFlow<CallHistoryUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(CallHistoryUiState())
+        val uiState: StateFlow<CallHistoryUiState> = _uiState.asStateFlow()
 
-    init {
-        observeCallHistory()
-    }
+        init {
+            observeCallHistory()
+        }
 
-    private fun observeCallHistory() {
-        Timber.d("Starting to observe call history")
-        getCallHistoryUseCase()
-            .onEach { entries ->
-                Timber.d("Received ${entries.size} call history entries")
-                entries.forEach { entry ->
-                    Timber.d("Entry: id=${entry.id}, phone=${entry.phoneNumber}, timestamp=${entry.timestamp}")
-                }
-                _uiState.update {
-                    it.copy(
-                        entries = entries,
-                        isLoading = false,
-                    )
-                }
-            }.catch { error ->
-                Timber.e(error, "Error loading call history")
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Failed to load call history",
-                    )
-                }
-            }.launchIn(viewModelScope)
-    }
+        private fun observeCallHistory() {
+            Timber.d("Starting to observe call history")
+            getCallHistoryUseCase()
+                .onEach { entries ->
+                    Timber.d("Received ${entries.size} call history entries")
+                    entries.forEach { entry ->
+                        Timber.d("Entry: id=${entry.id}, phone=${entry.phoneNumber}, timestamp=${entry.timestamp}")
+                    }
+                    _uiState.update {
+                        it.copy(
+                            entries = entries,
+                            isLoading = false,
+                        )
+                    }
+                }.catch { error ->
+                    Timber.e(error, "Error loading call history")
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Failed to load call history",
+                        )
+                    }
+                }.launchIn(viewModelScope)
+        }
 
-    /**
-     * Marks all unviewed entries as viewed.
-     * Should be called when the user opens the call history screen.
-     */
-    fun markAllAsViewed() {
-        viewModelScope.launch {
-            try {
-                markCallsAsViewedUseCase()
-                Timber.d("All entries marked as viewed")
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to mark entries as viewed")
+        /**
+         * Marks all unviewed entries as viewed.
+         * Should be called when the user opens the call history screen.
+         */
+        fun markAllAsViewed() {
+            viewModelScope.launch {
+                try {
+                    markCallsAsViewedUseCase()
+                    Timber.d("All entries marked as viewed")
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to mark entries as viewed")
+                }
             }
         }
-    }
 
-    /**
-     * Clears the error message.
-     */
-    fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+        /**
+         * Clears the error message.
+         */
+        fun clearError() {
+            _uiState.update { it.copy(errorMessage = null) }
+        }
     }
-}
-

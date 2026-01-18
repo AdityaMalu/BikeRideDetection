@@ -28,13 +28,14 @@ class CallHistoryRepositoryImplTest {
     @Test
     fun `saveEntry_validEntry_insertsAndReturnsId`() =
         runTest {
-            val entry = CallHistoryEntry(
-                id = 0,
-                phoneNumber = "+1234567890",
-                timestamp = 1000L,
-                isFromContact = true,
-                autoReplyMessage = "Test message",
-            )
+            val entry =
+                CallHistoryEntry(
+                    id = 0,
+                    phoneNumber = "+1234567890",
+                    timestamp = 1000L,
+                    isFromContact = true,
+                    autoReplyMessage = "Test message",
+                )
             val entitySlot = slot<CallHistoryEntity>()
             coEvery { callHistoryDao.insert(capture(entitySlot)) } returns 1L
 
@@ -61,22 +62,23 @@ class CallHistoryRepositoryImplTest {
     @Test
     fun `getAllEntries_withEntries_returnsMappedDomainModels`() =
         runTest {
-            val entities = listOf(
-                CallHistoryEntity(
-                    id = 1,
-                    phoneNumber = "+1234567890",
-                    timestamp = 1000L,
-                    isFromContact = true,
-                    autoReplyMessage = "Test message",
-                ),
-                CallHistoryEntity(
-                    id = 2,
-                    phoneNumber = "+0987654321",
-                    timestamp = 2000L,
-                    isFromContact = false,
-                    autoReplyMessage = "Another message",
-                ),
-            )
+            val entities =
+                listOf(
+                    CallHistoryEntity(
+                        id = 1,
+                        phoneNumber = "+1234567890",
+                        timestamp = 1000L,
+                        isFromContact = true,
+                        autoReplyMessage = "Test message",
+                    ),
+                    CallHistoryEntity(
+                        id = 2,
+                        phoneNumber = "+0987654321",
+                        timestamp = 2000L,
+                        isFromContact = false,
+                        autoReplyMessage = "Another message",
+                    ),
+                )
             every { callHistoryDao.getAllEntries() } returns flowOf(entities)
 
             repository.getAllEntries().test {
@@ -91,16 +93,17 @@ class CallHistoryRepositoryImplTest {
     @Test
     fun `getUnviewedEntries_withUnviewedEntries_returnsOnlyUnviewed`() =
         runTest {
-            val entities = listOf(
-                CallHistoryEntity(
-                    id = 1,
-                    phoneNumber = "+1234567890",
-                    timestamp = 1000L,
-                    isFromContact = true,
-                    autoReplyMessage = "Test message",
-                    isViewed = false,
-                ),
-            )
+            val entities =
+                listOf(
+                    CallHistoryEntity(
+                        id = 1,
+                        phoneNumber = "+1234567890",
+                        timestamp = 1000L,
+                        isFromContact = true,
+                        autoReplyMessage = "Test message",
+                        isViewed = false,
+                    ),
+                )
             every { callHistoryDao.getUnviewedEntries() } returns flowOf(entities)
 
             repository.getUnviewedEntries().test {
@@ -165,4 +168,3 @@ class CallHistoryRepositoryImplTest {
             coVerify(exactly = 1) { callHistoryDao.deleteAll() }
         }
 }
-
