@@ -89,6 +89,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupToolbar() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.action_call_history -> {
+                    startActivity(CallHistoryActivity.createIntent(this))
+                    true
+                }
                 R.id.action_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                     true

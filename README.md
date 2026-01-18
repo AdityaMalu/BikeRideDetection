@@ -4,6 +4,8 @@
 [![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple.svg)](https://kotlinlang.org)
 [![API](https://img.shields.io/badge/API-30%2B-brightgreen.svg)](https://android-arsenal.com/api?level=30)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Code Quality](https://img.shields.io/badge/Code%20Quality-detekt%20%7C%20ktlint-blue.svg)](https://detekt.dev)
+[![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
 
 A safety-focused Android application that **automatically detects cycling activity** and protects riders from phone distractions by blocking incoming calls and sending auto-reply SMS messages.
 
@@ -20,6 +22,7 @@ A safety-focused Android application that **automatically detects cycling activi
 - [Permissions](#-permissions)
 - [User Workflow](#-user-workflow)
 - [Background Services](#-background-services)
+- [Code Quality](#-code-quality)
 - [Testing](#-testing)
 - [Contributing](#-contributing)
 - [Known Issues](#-known-issues)
@@ -36,6 +39,51 @@ A safety-focused Android application that **automatically detects cycling activi
 | 💬 **Auto-Reply SMS** | Sends customizable message to callers: *"I'm riding my bike right now."* |
 | 🔔 **Persistent Notification** | Shows actionable notification to quickly disable bike mode |
 | 🎛️ **Manual Toggle** | Override automatic detection with manual on/off switch |
+| 📋 **Call History** | View missed calls during bike mode with visual distinction for new entries |
+
+### 📋 Call History Visual Distinction
+
+The Call History screen provides clear visual indicators to distinguish between **new (unviewed)** and **previously seen (viewed)** call entries:
+
+| Visual Indicator | Unviewed Entry | Viewed Entry |
+|------------------|----------------|--------------|
+| **Background** | Primary container color | Surface variant (subdued) |
+| **Border** | 2dp primary color border | No border |
+| **Indicator Dot** | Primary color dot on icon | None |
+| **Phone Number** | **Bold** text | Normal weight |
+| **"NEW" Badge** | Primary color badge | None |
+| **Icon Tint** | Primary color | Surface variant |
+
+#### Entry Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Call Rejected During Bike Mode                                │
+│    └─▶ Entry saved with isViewed = false                        │
+│    └─▶ Displays with all visual indicators (NEW badge, border)  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. User Opens Call History Screen                                │
+│    └─▶ Unviewed entries display prominently                     │
+│    └─▶ User can identify new missed calls at a glance           │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. User Navigates Away from Call History                         │
+│    └─▶ All entries marked as viewed (isViewed = true)           │
+│    └─▶ viewedAt timestamp recorded                              │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. Next Visit to Call History                                    │
+│    └─▶ Previously seen entries appear in subdued style          │
+│    └─▶ Only new entries since last visit show indicators        │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -319,6 +367,7 @@ sealed class SmsResult {
 │    └─▶ BikeCallScreeningService intercepts                   │
 │    └─▶ Call is REJECTED                                      │
 │    └─▶ Auto-reply SMS sent to caller                         │
+│    └─▶ Call saved to history (isViewed = false)              │
 └──────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -328,12 +377,31 @@ sealed class SmsResult {
 │    └─▶ Bike Mode auto-disables                               │
 │    └─▶ Calls allowed through normally                        │
 └──────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│ 5. Review Missed Calls                                        │
+│    └─▶ Open Call History from menu                           │
+│    └─▶ New entries show with visual indicators               │
+│    └─▶ Navigate away → entries marked as viewed              │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Manual Control
 
 - **Toggle Switch**: Use the switch in MainActivity to manually enable/disable
 - **Notification Tap**: Tap the persistent notification to quickly disable bike mode
+
+### Reviewing Call History
+
+1. **Access**: Tap the menu icon (⋮) in the top-right corner and select "Call History"
+2. **Identify New Calls**: Unviewed entries display with:
+   - A colored border around the card
+   - A "NEW" badge next to the phone number
+   - Bold phone number text
+   - A colored indicator dot on the contact icon
+3. **Mark as Viewed**: Simply navigate away from the Call History screen - all entries are automatically marked as viewed
+4. **Retention**: Viewed entries are automatically deleted after 24 hours to keep the list manageable
 
 
 ---
@@ -398,6 +466,80 @@ val transitions = listOf(
 
 ---
 
+## 🔍 Code Quality
+
+This project enforces strict code quality standards using **detekt** and **ktlint** static analysis tools.
+
+### Static Analysis Tools
+
+| Tool | Purpose | Configuration |
+|------|---------|---------------|
+| **detekt** | Static code analysis for Kotlin | `detekt.yml` |
+| **ktlint** | Kotlin linter and formatter | Default rules |
+
+### Running Code Quality Checks
+
+```bash
+# Run detekt analysis
+./gradlew detekt
+
+# Run ktlint check
+./gradlew ktlintCheck
+
+# Auto-format with ktlint
+./gradlew ktlintFormat
+
+# Run all checks (recommended before PR)
+./gradlew ktlintCheck detekt test
+```
+
+### Code Quality Standards
+
+| Rule | Threshold | Rationale |
+|------|-----------|-----------|
+| **Max Function Length** | 60 lines | Ensures functions remain focused and testable |
+| **Max File Length** | 600 lines | Encourages proper separation of concerns |
+| **Magic Numbers** | Not allowed | All numeric literals must be named constants |
+| **Cyclomatic Complexity** | ≤15 | Keeps code paths manageable |
+
+### Recent Code Quality Improvements (v2)
+
+The following refactoring was performed to resolve detekt violations:
+
+#### PermissionManager.kt
+- **Issue**: `LongMethod` - `getPermissionSteps()` exceeded 60 lines (was 62 lines)
+- **Solution**: Extracted into smaller, focused helper methods:
+  - `createLocationPermissionStep()` - Creates location permission step
+  - `addNotificationPermissionStepIfNeeded()` - Conditionally adds notification permission (Android 13+)
+  - `createSmsPermissionStep()` - Creates SMS permission step
+  - `createPhoneContactsPermissionStep()` - Creates phone/contacts permission step
+  - `addCallScreeningRoleIfNeeded()` - Conditionally adds call screening role (Android 10+)
+
+#### BikeModeWidgetProvider.kt
+- **Issue 1**: `MagicNumber` - Hardcoded delay value `100` in animation code
+- **Solution**: Extracted to named constant `TEXT_UPDATE_DELAY_MS = 100L`
+
+- **Issue 2**: `LongMethod` - `updateWidget()` exceeded 60 lines (was 92 lines)
+- **Solution**: Extracted into focused helper methods:
+  - `updateWidgetVisuals()` - Updates background, icon tint, and status text
+  - `updateWidgetToggle()` - Updates toggle switch track, thumb, and position
+  - `setupWidgetClickListeners()` - Configures click intents for toggle and container
+
+#### WidgetAnimationHelper.kt
+- **Issue**: `MagicNumber` - Hardcoded divisor `3` in delay calculation
+- **Solution**: Extracted to named constant `COLOR_CHANGE_DELAY_DIVISOR = 3`
+
+### Benefits of These Refactorings
+
+| Improvement | Benefit |
+|-------------|---------|
+| **Smaller functions** | Easier to test, understand, and maintain |
+| **Named constants** | Self-documenting code, single source of truth |
+| **Single responsibility** | Each method does one thing well |
+| **Reduced cognitive load** | Developers can focus on smaller units of code |
+
+---
+
 ## 🧪 Testing
 
 ### Running Tests
@@ -454,7 +596,7 @@ docs/      - Documentation updates (e.g., docs/update-readme)
 1. **Create a feature branch** from `main`
 2. **Write/update tests** for your changes
 3. **Ensure all tests pass**: `./gradlew test`
-4. **Follow code style**: Run `./gradlew ktlintCheck`
+4. **Follow code style**: Run `./gradlew ktlintCheck detekt`
 5. **Update documentation** if needed
 6. **Create PR** with clear description
 7. **Include screenshots** for UI changes
@@ -462,8 +604,9 @@ docs/      - Documentation updates (e.g., docs/update-readme)
 ### Code Style
 
 - Follow [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
-- Use `ktlint` for formatting
-- Maximum function length: 40 lines
+- Use `ktlint` for formatting and `detekt` for static analysis
+- Maximum function length: 60 lines (enforced by detekt)
+- No magic numbers - use named constants
 - All public functions must have KDoc
 
 ---

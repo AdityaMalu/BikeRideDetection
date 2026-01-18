@@ -1,8 +1,10 @@
 package com.example.bikeridedetection.di
 
 import com.example.bikeridedetection.data.repository.BikeModeRepositoryImpl
+import com.example.bikeridedetection.data.repository.CallHistoryRepositoryImpl
 import com.example.bikeridedetection.data.repository.SmsRepositoryImpl
 import com.example.bikeridedetection.domain.repository.BikeModeRepository
+import com.example.bikeridedetection.domain.repository.CallHistoryRepository
 import com.example.bikeridedetection.domain.repository.SmsRepository
 import dagger.Binds
 import dagger.Module
@@ -29,4 +31,11 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSmsRepository(impl: SmsRepositoryImpl): SmsRepository
+
+    /**
+     * Binds [CallHistoryRepositoryImpl] to [CallHistoryRepository].
+     */
+    @Binds
+    @Singleton
+    abstract fun bindCallHistoryRepository(impl: CallHistoryRepositoryImpl): CallHistoryRepository
 }
