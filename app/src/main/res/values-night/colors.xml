@@ -54,27 +54,35 @@
     <color name="status_active_background">#1B3D1E</color>
     <color name="status_inactive_background">#2D2D2D</color>
 
-    <!-- Card Colors -->
-    <color name="card_background">#2D2D2D</color>
-    <color name="card_stroke">#424242</color>
+    <!-- Card Colors - Material Design 3 Dark -->
+    <color name="card_background">#2B2930</color>
+    <color name="card_stroke">#49454F</color>
 
-    <!-- Feature Card Colors -->
+    <!-- Hero Card - Subtle surface tint for dark mode -->
+    <color name="card_hero_background">#252D27</color>
+    <color name="card_hero_stroke">#3D5940</color>
+
+    <!-- Feature Card Colors - Muted dark tones -->
+    <color name="card_feature_calls_background">#1E2433</color>
+    <color name="card_feature_sms_background">#2D2520</color>
+    <color name="card_feature_stroke">#3D3D3D</color>
+
+    <!-- Safety Card - Subtle green tint for dark mode -->
+    <color name="card_safety_background">#1E2D20</color>
+    <color name="card_safety_stroke">#4A7C4E</color>
+
+    <!-- Legacy Feature Card Colors (kept for compatibility) -->
     <color name="feature_calls_background">#1A237E</color>
     <color name="feature_sms_background">#4A2800</color>
     <color name="feature_notification_background">#4A148C</color>
 
-    <!-- Glassmorphism Colors - Dark Mode -->
-    <!-- Semi-transparent backgrounds with alpha for blur effect -->
-    <color name="glass_hero_background">#CC2D2D2D</color> <!-- 80% dark gray -->
-    <color name="glass_feature_calls_background">#D91A237E</color> <!-- 85% dark blue -->
-    <color name="glass_feature_sms_background">#D94A2800</color> <!-- 85% dark orange -->
-    <color name="glass_safety_background">#CC1B5E20</color> <!-- 80% dark green -->
-
-    <!-- Glassmorphism borders with subtle opacity -->
-    <color name="glass_border_light">#4DFFFFFF</color> <!-- 30% white for visibility -->
-    <color name="glass_border_accent">#6681C784</color> <!-- 40% light green -->
-
-    <!-- Shadow colors for depth -->
-    <color name="glass_shadow_light">#33000000</color> <!-- 20% black for stronger shadow -->
+    <!-- Glassmorphism Colors - Dark Mode (legacy) -->
+    <color name="glass_hero_background">#CC2D2D2D</color>
+    <color name="glass_feature_calls_background">#D91A237E</color>
+    <color name="glass_feature_sms_background">#D94A2800</color>
+    <color name="glass_safety_background">#CC1B5E20</color>
+    <color name="glass_border_light">#4DFFFFFF</color>
+    <color name="glass_border_accent">#6681C784</color>
+    <color name="glass_shadow_light">#33000000</color>
 </resources>
 

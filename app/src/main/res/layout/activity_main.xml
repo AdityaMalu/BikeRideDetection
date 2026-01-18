@@ -54,20 +54,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Hero Card - Main Toggle with Glassmorphism -->
+            <!-- Hero Card - Main Toggle with Material Design 3 styling -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/heroCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_glass_hero_card_stateful"
                 android:foreground="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/card_hero_background"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="8dp"
-                app:strokeWidth="0dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/card_hero_stroke"
+                app:strokeWidth="1dp"
                 app:layout_constraintTop_toBottomOf="@id/subtitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
@@ -156,7 +156,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <!-- Call Blocking Card with Glassmorphism -->
+                <!-- Call Blocking Card with Material Design 3 styling -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardCallBlocking"
                     android:layout_width="0dp"
@@ -166,10 +166,10 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/glass_feature_calls_background"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
-                    app:strokeColor="@color/glass_border_light"
+                    app:cardBackgroundColor="@color/card_feature_calls_background"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/card_feature_stroke"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -206,7 +206,7 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Auto Reply Card with Glassmorphism -->
+                <!-- Auto Reply Card with Material Design 3 styling -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardAutoReply"
                     android:layout_width="0dp"
@@ -216,10 +216,10 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/glass_feature_sms_background"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
-                    app:strokeColor="@color/glass_border_light"
+                    app:cardBackgroundColor="@color/card_feature_sms_background"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/card_feature_stroke"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -258,7 +258,7 @@
 
             </LinearLayout>
 
-            <!-- Safety Info Card with Glassmorphism -->
+            <!-- Safety Info Card with Material Design 3 styling -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/safetyCard"
                 android:layout_width="0dp"
@@ -268,11 +268,11 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/glass_safety_background"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/glass_border_accent"
-                app:strokeWidth="1.5dp"
+                app:cardBackgroundColor="@color/card_safety_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/card_safety_stroke"
+                app:strokeWidth="1dp"
                 app:layout_constraintTop_toBottomOf="@id/featureCardsContainer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
